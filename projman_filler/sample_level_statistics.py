@@ -5,7 +5,6 @@ class SampleLevelStats(object):
     def __init__(self, flowcell_name, sample_project, sample_name, sample_tag, lane_nbr, read_nbr, cycles,
                  percent_of_lane, pass_filter_clusters, percent_q_30, percent_tag_error, sample_library_name,
                  mean_q):
-
         self.flowcell_name = flowcell_name
         self.sample_project = sample_project
         self.sample_name = sample_name
@@ -50,7 +49,6 @@ def calculate_sample_statistics(flowcell_name, conversion_results, reads_and_cyc
             read_metrics = sample_demux_result["ReadMetrics"]
             for read_metric in read_metrics:
                 read_nbr = read_metric["ReadNumber"]
-                print("read_nbr: {}".format(read_nbr))
                 cycles = reads_and_cycles[read_nbr]
                 read_yield = read_metric["Yield"]
                 mean_q = read_metric["QualityScoreSum"] / read_metric["Yield"]
