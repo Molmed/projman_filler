@@ -7,8 +7,6 @@ from projman_filler.interop_service import InteropService
 from projman_filler.lane_level_statistics import calculate_lane_statistics
 from projman_filler.sample_level_statistics import calculate_sample_statistics
 
-"""Main module."""
-
 
 def calculate_stats(runfolder):
 
@@ -28,8 +26,8 @@ def calculate_stats(runfolder):
     densities = interop.get_densities()
     error_rates = interop.get_error_rates()
     q30s = interop.get_q30()
-    #q_scores = get_q_scores(summary)
-    lane_stats = calculate_lane_statistics(flowcell_name, conversion_results, reads_and_cycles, error_rates, densities, q30s)
+    lane_stats = calculate_lane_statistics(flowcell_name, conversion_results, reads_and_cycles,
+                                           error_rates, densities, q30s)
     for s in lane_stats:
         print(s)
 

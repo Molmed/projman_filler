@@ -1,4 +1,6 @@
 
+from collections import defaultdict
+
 
 class LaneLevelStats(object):
     def __init__(self, flowcell_id, lane_nbr, read_nbr, raw_density, pf_density, error_rate, total_clusters_raw,
@@ -19,15 +21,34 @@ class LaneLevelStats(object):
         return str(self.__dict__)
 
 
+def get_mean_q_scores(lane_dict):
+
+    results = defaultdict(list)
+
+    demultiplexing_results = lane_dict["DemuxResults"]
+    undetermined_results = lane_dict["Undetermined"]
+
+    demultiplex_info_dicts = demultiplexing_results + [undetermined_results]
+    for sample_dict in demultiplex_info_dicts:
+        read_metrics = sample_dict["ReadMetrics"]
+        for read_metric in read_metrics:
+            read_nbr = read_metric["ReadNumber"]
+            results[read_nbr].append(read_metric["QualityScoreSum"] / read_metric["Yield"])
+
+    # Calculate the mean within each read
+    for k, v in results.items():
+        results[k] = sum(v) / float(len(v))
+    return results
+
+
 def calculate_lane_statistics(flowcell_name, conversion_results, reads_and_cycles, error_rates, densities, q30s):
     for lane_dict in conversion_results:
         lane_nbr = lane_dict["LaneNumber"]
         total_clusters_raw = lane_dict["TotalClustersRaw"]
         total_clusters_pf = lane_dict["TotalClustersPF"]
         sample_demux_results = lane_dict["DemuxResults"]
-        mean_q = "TODO" # TODO
+        mean_q = get_mean_q_scores(lane_dict)
         for sample_demux_result in sample_demux_results:
-            sample_id = sample_demux_result["SampleId"]
             read_metrics = sample_demux_result["ReadMetrics"]
             for read_metric in read_metrics:
                 read_nbr = read_metric["ReadNumber"]
@@ -37,6 +58,7 @@ def calculate_lane_statistics(flowcell_name, conversion_results, reads_and_cycle
                 raw_density = densities[lane_nbr][read_nbr]["raw_density"]
                 pf_density = densities[lane_nbr][read_nbr]["pass_filter_density"]
                 percent_q30 = q30s[lane_nbr][read_nbr]
+                mean_q_for_read = mean_q[read_nbr]
                 yield LaneLevelStats(flowcell_name, lane_nbr, read_nbr, raw_density, pf_density, error_rate,
-                                     total_clusters_raw, total_clusters_pf, cycles, percent_q30, mean_q)
+                                     total_clusters_raw, total_clusters_pf, cycles, percent_q30, mean_q_for_read)
 

@@ -70,15 +70,3 @@ class InteropService(object):
                 q30s[lane+1][new_nbr+1] = q30
         return q30s
 
-    def get_q_scores(self):
-        lanes = self.summary.lane_count()
-
-        non_index_reads = self.get_non_index_reads()
-
-        q_scores = defaultdict(dict)
-        # "Renumber" the reads to have their intuitive read numbers, i.e. Read 1 -> 1, Read 2 -> 2
-        for new_nbr, original_read_nbr in enumerate(non_index_reads):
-            for lane in range(lanes):
-                q = self.summary.at(original_read_nbr).at(lane).q_metric()
-                q_scores[lane+1][new_nbr+1] = q
-        return q_scores
