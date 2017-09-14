@@ -20,6 +20,13 @@ class LaneLevelStats(object):
     def __str__(self):
         return str(self.__dict__)
 
+    def __eq__(self, other):
+        if isinstance(other, LaneLevelStats):
+            if self.__dict__ == other.__dict__:
+                return True
+        else:
+            return False
+
 
 def _get_mean_q_scores(lane_dict):
 
@@ -46,19 +53,16 @@ def calculate_lane_statistics(flowcell_name, conversion_results, reads_and_cycle
         lane_nbr = lane_dict["LaneNumber"]
         total_clusters_raw = lane_dict["TotalClustersRaw"]
         total_clusters_pf = lane_dict["TotalClustersPF"]
-        sample_demux_results = lane_dict["DemuxResults"]
         mean_q = _get_mean_q_scores(lane_dict)
-        for sample_demux_result in sample_demux_results:
-            read_metrics = sample_demux_result["ReadMetrics"]
-            for read_metric in read_metrics:
-                read_nbr = read_metric["ReadNumber"]
-                cycles = reads_and_cycles[read_nbr]
 
-                error_rate = error_rates[lane_nbr][read_nbr]
-                raw_density = densities[lane_nbr][read_nbr]["raw_density"]
-                pf_density = densities[lane_nbr][read_nbr]["pass_filter_density"]
-                percent_q30 = q30s[lane_nbr][read_nbr]
-                mean_q_for_read = mean_q[read_nbr]
-                yield LaneLevelStats(flowcell_name, lane_nbr, read_nbr, raw_density, pf_density, error_rate,
-                                     total_clusters_raw, total_clusters_pf, cycles, percent_q30, mean_q_for_read)
+        for read_nbr in reads_and_cycles.keys():
+            cycles = reads_and_cycles[read_nbr]
+
+            error_rate = error_rates[lane_nbr][read_nbr]
+            raw_density = densities[lane_nbr][read_nbr]["raw_density"]
+            pf_density = densities[lane_nbr][read_nbr]["pass_filter_density"]
+            percent_q30 = q30s[lane_nbr][read_nbr]
+            mean_q_for_read = mean_q[read_nbr]
+            yield LaneLevelStats(flowcell_name, lane_nbr, read_nbr, raw_density, pf_density, error_rate,
+                                 total_clusters_raw, total_clusters_pf, cycles, percent_q30, mean_q_for_read)
 
