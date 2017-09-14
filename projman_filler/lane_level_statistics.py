@@ -21,7 +21,7 @@ class LaneLevelStats(object):
         return str(self.__dict__)
 
 
-def get_mean_q_scores(lane_dict):
+def _get_mean_q_scores(lane_dict):
 
     results = defaultdict(list)
 
@@ -33,7 +33,7 @@ def get_mean_q_scores(lane_dict):
         read_metrics = sample_dict["ReadMetrics"]
         for read_metric in read_metrics:
             read_nbr = read_metric["ReadNumber"]
-            results[read_nbr].append(read_metric["QualityScoreSum"] / read_metric["Yield"])
+            results[read_nbr].append(float(read_metric["QualityScoreSum"]) / read_metric["Yield"])
 
     # Calculate the mean within each read
     for k, v in results.items():
@@ -47,7 +47,7 @@ def calculate_lane_statistics(flowcell_name, conversion_results, reads_and_cycle
         total_clusters_raw = lane_dict["TotalClustersRaw"]
         total_clusters_pf = lane_dict["TotalClustersPF"]
         sample_demux_results = lane_dict["DemuxResults"]
-        mean_q = get_mean_q_scores(lane_dict)
+        mean_q = _get_mean_q_scores(lane_dict)
         for sample_demux_result in sample_demux_results:
             read_metrics = sample_demux_result["ReadMetrics"]
             for read_metric in read_metrics:

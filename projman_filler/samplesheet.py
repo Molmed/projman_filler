@@ -106,5 +106,8 @@ class Samplesheet(object):
 
     def library_name_for_sample(self, sample_name, lane):
         description = self._get_matching_sample(sample_name, lane).description
-        matching = list(filter(lambda x: "LIBRARY_NAME" in x, description.split(";")))[0]
-        return matching.split(":")[1]
+        matching = list(filter(lambda x: "LIBRARY_NAME" in x, description.split(";")))
+        if len(matching) != 1:
+            return None
+        else:
+            return matching[0].split(":")[1]
