@@ -53,20 +53,18 @@ def calculate_sample_statistics(flowcell_name, conversion_results, reads_and_cyc
             percent_of_lane = fraction_of_lane * 100
 
             read_metrics = sample_demux_result["ReadMetrics"]
-            for read_metric in read_metrics:
-                read_nbr = read_metric["ReadNumber"]
-                cycles = reads_and_cycles[read_nbr]
-                mean_q = read_metric["QualityScoreSum"] / read_metric["Yield"]
-                percent_q_30 = (float(read_metric["YieldQ30"]) / read_metric["Yield"])*100
-                pass_filter_clusters = total_clusters_pf * fraction_of_lane
 
-                index_metrics = sample_demux_result["IndexMetrics"]
-
-                for index in index_metrics:
-                    sample_tag = index["IndexSequence"]
-                    mismatch_counts = sum_of_mismatch_counts(index["MismatchCounts"])
-                    percent_tag_error = (float(mismatch_counts) / float(number_of_reads))*100
-
+            index_metrics = sample_demux_result["IndexMetrics"]
+            for index in index_metrics:
+                sample_tag = index["IndexSequence"]
+                mismatch_counts = sum_of_mismatch_counts(index["MismatchCounts"])
+                percent_tag_error = (float(mismatch_counts) / float(number_of_reads))*100
+                for read_metric in read_metrics:
+                    read_nbr = read_metric["ReadNumber"]
+                    cycles = reads_and_cycles[read_nbr]
+                    mean_q = read_metric["QualityScoreSum"] / read_metric["Yield"]
+                    percent_q_30 = (float(read_metric["YieldQ30"]) / read_metric["Yield"])*100
+                    pass_filter_clusters = total_clusters_pf * fraction_of_lane
                     yield SampleLevelStats(flowcell_name, sample_project, sample_name, sample_tag, lane_nbr, read_nbr,
                                            cycles, percent_of_lane, pass_filter_clusters, percent_q_30,
                                            percent_tag_error, sample_library_name, mean_q)
