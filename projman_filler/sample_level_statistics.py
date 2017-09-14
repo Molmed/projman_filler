@@ -22,6 +22,16 @@ class SampleLevelStats(object):
     def __str__(self):
         return str(self.__dict__)
 
+    def __repr__(self):
+        return str(self.__dict__)
+
+    def __eq__(self, other):
+        if isinstance(other, SampleLevelStats):
+            if self.__dict__ == other.__dict__:
+                return True
+        else:
+            return False
+
 
 def sum_of_mismatch_counts(mismatch_counts):
     result = 0
