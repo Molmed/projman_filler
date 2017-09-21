@@ -42,7 +42,7 @@ class App(object):
                 reads_and_cycles[read_info["Number"]] = read_info["NumCycles"]
         return reads_and_cycles
 
-    def insert_runfolder_into_db(self, runfolder):
+    def insert_runfolder_into_db(self, runfolder, force=False):
 
         stats_json = os.path.join(runfolder, 'Unaligned', 'Stats', 'Stats.json')
         with open(stats_json, 'r') as f:
@@ -52,7 +52,14 @@ class App(object):
         conversion_results = stats_json["ConversionResults"]
 
         if self.flowcell_runfolder_repo.contains_flowcell(flowcell_name):
-            raise FlowcellAlreadyInDb
+            if force:
+                print("Found the specified runfolder in the db, but got a force option, so will proceed to "
+                      "delete it and insert new values.")
+                self.flowcell_lane_results_repo.delete_by_flowcell_name(flowcell_name)
+                self.flowcell_runfolder_repo.delete_by_flowcell_name(flowcell_name)
+                self.sample_results_repo.delete_by_flowcell_name(flowcell_name)
+            else:
+                raise FlowcellAlreadyInDb
 
         interop = InteropService(runfolder)
         densities = interop.get_densities()

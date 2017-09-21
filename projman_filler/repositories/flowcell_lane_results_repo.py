@@ -1,4 +1,5 @@
 
+from projman_filler.models.db_models import FlowcellLaneResult
 
 class FlowcellLaneResultsRepo(object):
 
@@ -13,3 +14,7 @@ class FlowcellLaneResultsRepo(object):
             session.add(flowcell_lane_results)
         session.commit()
 
+    def delete_by_flowcell_name(self, flowcell_name):
+        session = self._session_factory()
+        session.query(FlowcellLaneResult).filter(FlowcellLaneResult.flowcell_id == flowcell_name).delete()
+        session.commit()

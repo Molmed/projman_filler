@@ -19,3 +19,8 @@ class FlowcellRunfolderRepo(object):
         session = self._session_factory()
         q = session.query(FlowcellRunfolder).filter(FlowcellRunfolder.flowcell_id == flowcell_name)
         return session.query(q.exists())
+
+    def delete_by_flowcell_name(self, flowcell_name):
+        session = self._session_factory()
+        session.query(FlowcellRunfolder).filter(FlowcellRunfolder.flowcell_id == flowcell_name).delete()
+        session.commit()

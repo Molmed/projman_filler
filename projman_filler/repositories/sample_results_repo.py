@@ -14,3 +14,8 @@ class SampleResultRepo(object):
         else:
             session.add(sample_results)
         session.commit()
+
+    def delete_by_flowcell_name(self, flowcell_name):
+        session = self._session_factory()
+        session.query(SampleResult).filter(SampleResult.flowcell_id == flowcell_name).delete()
+        session.commit()
