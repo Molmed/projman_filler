@@ -8,14 +8,21 @@
 # /JD 2017-09-20
 # ------------------------------------------------------
 
-from sqlalchemy import BigInteger, Column, DateTime, Float, ForeignKey, Index, Integer, LargeBinary, SmallInteger, String, Table, Text, Unicode
-from sqlalchemy.dialects.mssql.base import BIT
-from sqlalchemy.orm import relationship
+from sqlalchemy import BigInteger, Column, DateTime, Float, Integer, SmallInteger, String, Unicode
 from sqlalchemy.ext.declarative import declarative_base
 
 
 Base = declarative_base()
 metadata = Base.metadata
+
+
+def _filter_private_field(model_dict):
+    new_dict = {}
+    for k, v in model_dict.items():
+        if not k.startswith("_"):
+            new_dict[k] = v
+    return new_dict
+
 
 class FlowcellLaneResult(Base):
     __tablename__ = 'flowcell_lane_results'
@@ -35,13 +42,12 @@ class FlowcellLaneResult(Base):
 
     def __eq__(self, other):
         if isinstance(other, FlowcellLaneResult):
-            for k, v in self.__dict__.items():
-                if not k.startswith("_"):
-                    if not other.__dict__[k] == self.__dict__[k]:
-                        return False
-            return True
+            return _filter_private_field(self.__dict__) == _filter_private_field(other.__dict__)
         else:
             return False
+
+    def __str__(self):
+        return str(_filter_private_field(self.__dict__))
 
 
 class FlowcellRunfolder(Base):
@@ -50,6 +56,15 @@ class FlowcellRunfolder(Base):
     flowcell_id = Column(String(50, 'SQL_Latin1_General_CP1_CI_AS'), primary_key=True, index=True)
     runfolder_name = Column(String(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
     run_date = Column(DateTime, nullable=False)
+
+    def __eq__(self, other):
+        if isinstance(other, FlowcellRunfolder):
+            return _filter_private_field(self.__dict__) == _filter_private_field(other.__dict__)
+        else:
+            return False
+
+    def __str__(self):
+        return str(_filter_private_field(self.__dict__))
 
 
 class SampleResult(Base):
@@ -70,11 +85,10 @@ class SampleResult(Base):
     mean_q = Column(Float(24))
 
     def __eq__(self, other):
-        if isinstance(other, FlowcellLaneResult):
-            for k, v in self.__dict__.items():
-                if not k.startswith("_"):
-                    if not other.__dict__[k] == self.__dict__[k]:
-                        return False
-            return True
+        if isinstance(other, SampleResult):
+            return _filter_private_field(self.__dict__) == _filter_private_field(other.__dict__)
         else:
             return False
+
+    def __str__(self):
+        return str(_filter_private_field(self.__dict__))
