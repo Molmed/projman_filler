@@ -1,0 +1,4 @@
+
+
+class FlowcellAlreadyInDb(Exception):
+    pass
