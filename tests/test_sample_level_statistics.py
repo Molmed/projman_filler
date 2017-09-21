@@ -1,11 +1,13 @@
 import unittest
 
-from projman_filler.sample_level_statistics import calculate_sample_statistics,SampleLevelStats
+from projman_filler.models.db_models import SampleResult
+from projman_filler.sample_level_statistics import calculate_sample_statistics
+
 from tests.test_utils import conversion_results
 
 
 class TestSampleLevelStatistics(unittest.TestCase):
-    flowcell_name = "foo"
+    flowcell_id = "foo"
     reads_and_cycles = {1: 151, 2: 151}
     error_rates = {1: {1: 2.0, 2: 2.0}, 2: {1: 2.0, 2: 2.0}}
     densities = {
@@ -34,7 +36,7 @@ class TestSampleLevelStatistics(unittest.TestCase):
     samplesheet_mock = SampleSheetMock()
 
     def test_calculate_sample_level_statistics(self):
-        actual = list(calculate_sample_statistics(flowcell_name=self.flowcell_name,
+        actual = list(calculate_sample_statistics(flowcell_name=self.flowcell_id,
                                                   conversion_results=conversion_results,
                                                   reads_and_cycles=self.reads_and_cycles,
                                                   samplesheet=self.samplesheet_mock))
@@ -44,38 +46,38 @@ class TestSampleLevelStatistics(unittest.TestCase):
 
         actual_sample_a = list(filter(lambda x: x.sample_name == 'A', actual))
         list_of_values_for_a = [
-            {'flowcell_name': 'foo', 'sample_project': 'Project1', 'sample_name': 'A',
-             'sample_tag': 'GTAGAGGA+CTCTCTAT', 'lane_nbr': 1, 'read_nbr': 1, 'cycles': 151,
-             'percent_of_lane': 49.91040361971908, 'pass_filter_clusters': 81217423.0,
-             'percent_q_30': 98.02429332249935, 'percent_tag_error': 0.671112157794024,
-             'sample_library_name': 'A.library', 'mean_q': 38.84148990743496},
-            {'flowcell_name': 'foo', 'sample_project': 'Project1', 'sample_name': 'A',
-             'sample_tag': 'GTAGAGGA+CTCTCTAT', 'lane_nbr': 1, 'read_nbr': 2, 'cycles': 151,
-             'percent_of_lane': 49.91040361971908, 'pass_filter_clusters': 81217423.0,
-             'percent_q_30': 96.45192508767363, 'percent_tag_error': 0.671112157794024,
-             'sample_library_name': 'A.library', 'mean_q': 38.373262536376345},
-            {'flowcell_name': 'foo', 'sample_project': 'Project1', 'sample_name': 'A',
-             'sample_tag': 'TAGGCATG+CTCTCTAT', 'lane_nbr': 1, 'read_nbr': 1, 'cycles': 151,
-             'percent_of_lane': 49.91040361971908, 'pass_filter_clusters': 81217423.0,
-             'percent_q_30': 98.02429332249935, 'percent_tag_error': 0.7880181078880083,
-             'sample_library_name': 'A.library', 'mean_q': 38.84148990743496},
-            {'flowcell_name': 'foo', 'sample_project': 'Project1', 'sample_name': 'A',
-             'sample_tag': 'TAGGCATG+CTCTCTAT', 'lane_nbr': 1, 'read_nbr': 2, 'cycles': 151,
-             'percent_of_lane': 49.91040361971908, 'pass_filter_clusters': 81217423.0,
-             'percent_q_30': 96.45192508767363, 'percent_tag_error': 0.7880181078880083,
-             'sample_library_name': 'A.library', 'mean_q': 38.373262536376345},
-            {'flowcell_name': 'foo', 'sample_project': 'Project1', 'sample_name': 'A',
-             'sample_tag': 'TCCTGAGC+CTCTCTAT', 'lane_nbr': 1, 'read_nbr': 1, 'cycles': 151,
-             'percent_of_lane': 49.91040361971908, 'pass_filter_clusters': 81217423.0,
-             'percent_q_30': 98.02429332249935, 'percent_tag_error': 0.7687463809335591,
-             'sample_library_name': 'A.library', 'mean_q': 38.84148990743496},
-            {'flowcell_name': 'foo', 'sample_project': 'Project1', 'sample_name': 'A',
-             'sample_tag': 'TCCTGAGC+CTCTCTAT', 'lane_nbr': 1, 'read_nbr': 2, 'cycles': 151,
-             'percent_of_lane': 49.91040361971908, 'pass_filter_clusters': 81217423.0,
-             'percent_q_30': 96.45192508767363, 'percent_tag_error': 0.7687463809335591,
-             'sample_library_name': 'A.library', 'mean_q': 38.373262536376345}]
+            {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
+             'tag_seq': 'GTAGAGGA+CTCTCTAT', 'lane_num': 1, 'read_num': 1, 'cycles': 151,
+             'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
+             'pct_q30': 98.02429332249935, 'pct_tag_err': 0.671112157794024,
+             'library_name': 'A.library', 'mean_q': 38.84148990743496},
+            {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
+             'tag_seq': 'GTAGAGGA+CTCTCTAT', 'lane_num': 1, 'read_num': 2, 'cycles': 151,
+             'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
+             'pct_q30': 96.45192508767363, 'pct_tag_err': 0.671112157794024,
+             'library_name': 'A.library', 'mean_q': 38.373262536376345},
+            {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
+             'tag_seq': 'TAGGCATG+CTCTCTAT', 'lane_num': 1, 'read_num': 1, 'cycles': 151,
+             'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
+             'pct_q30': 98.02429332249935, 'pct_tag_err': 0.7880181078880083,
+             'library_name': 'A.library', 'mean_q': 38.84148990743496},
+            {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
+             'tag_seq': 'TAGGCATG+CTCTCTAT', 'lane_num': 1, 'read_num': 2, 'cycles': 151,
+             'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
+             'pct_q30': 96.45192508767363, 'pct_tag_err': 0.7880181078880083,
+             'library_name': 'A.library', 'mean_q': 38.373262536376345},
+            {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
+             'tag_seq': 'TCCTGAGC+CTCTCTAT', 'lane_num': 1, 'read_num': 1, 'cycles': 151,
+             'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
+             'pct_q30': 98.02429332249935, 'pct_tag_err': 0.7687463809335591,
+             'library_name': 'A.library', 'mean_q': 38.84148990743496},
+            {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
+             'tag_seq': 'TCCTGAGC+CTCTCTAT', 'lane_num': 1, 'read_num': 2, 'cycles': 151,
+             'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
+             'pct_q30': 96.45192508767363, 'pct_tag_err': 0.7687463809335591,
+             'library_name': 'A.library', 'mean_q': 38.373262536376345}]
 
-        expected_sample_a = list(map(lambda x: SampleLevelStats(**x), list_of_values_for_a))
+        expected_sample_a = list(map(lambda x: SampleResult(**x), list_of_values_for_a))
         self.assertListEqual(expected_sample_a, actual_sample_a)
 
 if __name__ == '__main__':

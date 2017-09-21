@@ -1,37 +1,5 @@
 
-
-class SampleLevelStats(object):
-
-    def __init__(self, flowcell_name, sample_project, sample_name, sample_tag, lane_nbr, read_nbr, cycles,
-                 percent_of_lane, pass_filter_clusters, percent_q_30, percent_tag_error, sample_library_name,
-                 mean_q):
-        self.flowcell_name = flowcell_name
-        self.sample_project = sample_project
-        self.sample_name = sample_name
-        self.sample_tag = sample_tag
-        self.lane_nbr = lane_nbr
-        self.read_nbr = read_nbr
-        self.cycles = cycles
-        self.percent_of_lane = percent_of_lane
-        self.pass_filter_clusters = pass_filter_clusters
-        self.percent_q_30 = percent_q_30
-        self.percent_tag_error = percent_tag_error
-        self.sample_library_name = sample_library_name
-        self.mean_q = mean_q
-
-    def __str__(self):
-        return str(self.__dict__)
-
-    def __repr__(self):
-        return str(self.__dict__)
-
-    def __eq__(self, other):
-        if isinstance(other, SampleLevelStats):
-            if self.__dict__ == other.__dict__:
-                return True
-        else:
-            return False
-
+from projman_filler.models.db_models import SampleResult
 
 def sum_of_mismatch_counts(mismatch_counts):
     result = 0
@@ -75,7 +43,9 @@ def calculate_sample_statistics(flowcell_name, conversion_results, reads_and_cyc
                     mean_q = read_metric["QualityScoreSum"] / read_metric["Yield"]
                     percent_q_30 = (float(read_metric["YieldQ30"]) / read_metric["Yield"])*100
                     pass_filter_clusters = total_clusters_pf * fraction_of_lane
-                    yield SampleLevelStats(flowcell_name, sample_project, sample_name, sample_tag, lane_nbr, read_nbr,
-                                           cycles, percent_of_lane, pass_filter_clusters, percent_q_30,
-                                           percent_tag_error, sample_library_name, mean_q)
+                    yield SampleResult(flowcell_id=flowcell_name, project_id=sample_project, sample_name=sample_name,
+                                       tag_seq=sample_tag, lane_num=lane_nbr, read_num=read_nbr, cycles=cycles,
+                                       pct_lane=percent_of_lane, pf_clusters=pass_filter_clusters, pct_q30=percent_q_30,
+                                       pct_tag_err=percent_tag_error, library_name=sample_library_name,
+                                       mean_q=mean_q)
 
