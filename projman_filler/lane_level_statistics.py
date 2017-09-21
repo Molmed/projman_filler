@@ -1,32 +1,7 @@
 
 from collections import defaultdict
 
-
-class LaneLevelStats(object):
-    def __init__(self, flowcell_id, lane_nbr, read_nbr, raw_density, pf_density, error_rate, total_clusters_raw,
-                 total_clusters_pf, cycles, percent_q30, mean_q):
-        self.flowcell_id = flowcell_id
-        self.lane_nbr = lane_nbr
-        self.read_nbr = read_nbr
-        self.raw_density = raw_density
-        self.pf_density = pf_density
-        self.error_rate = error_rate
-        self.total_clusters_raw = total_clusters_raw
-        self.total_clusters_pf = total_clusters_pf
-        self.cycles = cycles
-        self.percent_q30 = percent_q30
-        self.mean_q = mean_q
-
-    def __str__(self):
-        return str(self.__dict__)
-
-    def __eq__(self, other):
-        if isinstance(other, LaneLevelStats):
-            if self.__dict__ == other.__dict__:
-                return True
-        else:
-            return False
-
+from projman_filler.models.db_models import FlowcellLaneResult
 
 def _get_mean_q_scores(lane_dict):
 
@@ -63,6 +38,8 @@ def calculate_lane_statistics(flowcell_name, conversion_results, reads_and_cycle
             pf_density = densities[lane_nbr][read_nbr]["pass_filter_density"]
             percent_q30 = q30s[lane_nbr][read_nbr]
             mean_q_for_read = mean_q[read_nbr]
-            yield LaneLevelStats(flowcell_name, lane_nbr, read_nbr, raw_density, pf_density, error_rate,
-                                 total_clusters_raw, total_clusters_pf, cycles, percent_q30, mean_q_for_read)
+            yield FlowcellLaneResult(flowcell_id=flowcell_name, lane_num=lane_nbr, read_num=read_nbr,
+                                     raw_density=raw_density, pf_density=pf_density, error_rate=error_rate,
+                                     raw_clusters=total_clusters_raw, pf_clusters=total_clusters_pf,
+                                     cycles=cycles, pct_q30=percent_q30, mean_q=mean_q_for_read)
 
