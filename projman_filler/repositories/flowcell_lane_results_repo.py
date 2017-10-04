@@ -1,6 +1,7 @@
 
 from projman_filler.models.db_models import FlowcellLaneResult
 
+
 class FlowcellLaneResultsRepo(object):
 
     def __init__(self, session_factory):

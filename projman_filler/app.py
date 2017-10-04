@@ -10,6 +10,7 @@ from projman_filler.interop_service import InteropService
 from projman_filler.lane_level_statistics import calculate_lane_statistics
 from projman_filler.sample_level_statistics import calculate_sample_statistics
 from projman_filler.exceptions import FlowcellAlreadyInDb
+from projman_filler.models.db_models import FlowcellRunfolder
 
 from projman_filler.repositories.sample_results_repo import SampleResultRepo
 from projman_filler.repositories.flowcell_lane_results_repo import FlowcellLaneResultsRepo
@@ -18,10 +19,10 @@ from projman_filler.repositories.flowcell_runfolder_repo import FlowcellRunfolde
 
 class App(object):
 
-    def __init__(self, db_connection_string, flowcell_runfolder_repo=None,
+    def __init__(self, db_connection_string, debug=False, flowcell_runfolder_repo=None,
                  flowcell_lane_results_repo=None, sample_results_repo=None):
 
-        engine = create_engine(db_connection_string, echo=True)
+        engine = create_engine(db_connection_string, echo=debug)
         session_factory = scoped_session(sessionmaker())
         session_factory.configure(bind=engine)
 
@@ -41,6 +42,9 @@ class App(object):
             if not read_info["IsIndexedRead"]:
                 reads_and_cycles[read_info["Number"]] = read_info["NumCycles"]
         return reads_and_cycles
+
+    def parse_rundate_from_runfolder_name(self, runfolder_name):
+        return os.path.basename(runfolder_name).split("_")[0]
 
     def insert_runfolder_into_db(self, runfolder, force=False):
 
@@ -77,3 +81,10 @@ class App(object):
 
         sample_stats = calculate_sample_statistics(flowcell_name, conversion_results, reads_and_cycles, samplesheet)
         self.sample_results_repo.add(list(sample_stats))
+
+        runfolder_name = os.path.basename(runfolder)
+        runfolder_date = self.parse_rundate_from_runfolder_name(runfolder)
+        flowcell_runfolder = FlowcellRunfolder(flowcell_id=flowcell_name,
+                                               runfolder_name=runfolder_name,
+                                               run_date=runfolder_date)
+        self.flowcell_runfolder_repo.add(flowcell_runfolder)

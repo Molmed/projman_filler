@@ -5,13 +5,16 @@
 
 from setuptools import setup, find_packages
 
-with open('README.rst') as readme_file:
+with open('README.md') as readme_file:
     readme = readme_file.read()
 
 requirements = [
     'Click>=6.0',
     'xmltodict',
-    'interop'
+    'interop',
+    'SQLAlchemy',
+    'pymssql',
+    'pandas'
 ]
 
 setup_requirements = [
@@ -30,7 +33,7 @@ setup(
     author="Johan Dahlberg",
     author_email='johan.dahlberg@medsci.uu.se',
     url='https://github.com/johandahlberg/projman_filler',
-    packages=find_packages(include=['projman_filler']),
+    packages=find_packages(exclude=["tests/"]),
     entry_points={
         'console_scripts': [
             'projman_filler=projman_filler.cli:main'

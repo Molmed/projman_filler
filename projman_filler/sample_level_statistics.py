@@ -34,7 +34,8 @@ def calculate_sample_statistics(flowcell_name, conversion_results, reads_and_cyc
 
             index_metrics = sample_demux_result["IndexMetrics"]
             for index in index_metrics:
-                sample_tag = index["IndexSequence"]
+                # Replace + with - to be compatible with legacy data in ProjMan db. /JD 2017-10-04
+                sample_tag = index["IndexSequence"].replace("+", "-")
                 mismatch_counts = sum_of_mismatch_counts(index["MismatchCounts"])
                 percent_tag_error = (float(mismatch_counts) / float(number_of_reads))*100
                 for read_metric in read_metrics:
