@@ -18,7 +18,7 @@ class TestLaneLevelStatistics(unittest.TestCase):
             {1: {"raw_density": 100000, "pass_filter_density": 100000},
              2: {"raw_density": 100000, "pass_filter_density": 100000}},
     }
-    q30s = {1: {1: 95.0, 2: 92.0}, 2: {1: 96.1, 2: 94.2}}
+    q30s = {1: {1: 95.0, 2: 92.0}, 2: {1: 96.1, 2: 94.0}}
 
     def test_calculate_lane_level_stats(self):
         actual = list(calculate_lane_statistics(flowcell_name=self.flowcell_name,
@@ -32,16 +32,16 @@ class TestLaneLevelStatistics(unittest.TestCase):
         expected = [
             FlowcellLaneResult(flowcell_id='foo', lane_num=1, read_num=1, raw_density=100000, pf_density=100000,
                            error_rate=2.0, raw_clusters=168865204, pf_clusters=162726440, cycles=151,
-                           pct_q30=95.0, mean_q=38.778728523122744),
+                           pct_q30=0.95, mean_q=38.778728523122744),
             FlowcellLaneResult(flowcell_id='foo', lane_num=1, read_num=2, raw_density=100000, pf_density=100000,
                            error_rate=2.0, raw_clusters=168865204, pf_clusters=162726440, cycles=151,
-                           pct_q30=92.0, mean_q=38.23724053948388),
+                           pct_q30=0.92, mean_q=38.23724053948388),
             FlowcellLaneResult(flowcell_id='foo', lane_num=2, read_num=1, raw_density=100000, pf_density=100000,
                            error_rate=2.0, raw_clusters=170966905, pf_clusters=164470667, cycles=151,
-                           pct_q30=96.1, mean_q=38.74961137133973),
+                           pct_q30=0.961, mean_q=38.74961137133973),
             FlowcellLaneResult(flowcell_id='foo', lane_num=2, read_num=2, raw_density=100000, pf_density=100000,
                            error_rate=2.0, raw_clusters=170966905, pf_clusters=164470667, cycles=151,
-                           pct_q30=94.2, mean_q=38.18423664140531)
+                           pct_q30=0.94, mean_q=38.18423664140531)
         ]
         self.assertListEqual(actual, expected)
 
