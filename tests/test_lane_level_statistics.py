@@ -31,17 +31,17 @@ class TestLaneLevelStatistics(unittest.TestCase):
         self.assertEqual(len(actual), 4)
         expected = [
             FlowcellLaneResult(flowcell_id='foo', lane_num=1, read_num=1, raw_density=100000, pf_density=100000,
-                           error_rate=2.0, raw_clusters=168865204, pf_clusters=162726440, cycles=151,
-                           pct_q30=0.95, mean_q=38.778728523122744),
+                               error_rate=2.0, raw_clusters=168865204, pf_clusters=162726440, cycles=151,
+                               pct_q30=0.95, mean_q=38.778728523122744),
             FlowcellLaneResult(flowcell_id='foo', lane_num=1, read_num=2, raw_density=100000, pf_density=100000,
-                           error_rate=2.0, raw_clusters=168865204, pf_clusters=162726440, cycles=151,
-                           pct_q30=0.92, mean_q=38.23724053948388),
+                               error_rate=2.0, raw_clusters=168865204, pf_clusters=162726440, cycles=151,
+                               pct_q30=0.92, mean_q=38.23724053948388),
             FlowcellLaneResult(flowcell_id='foo', lane_num=2, read_num=1, raw_density=100000, pf_density=100000,
-                           error_rate=2.0, raw_clusters=170966905, pf_clusters=164470667, cycles=151,
-                           pct_q30=0.961, mean_q=38.74961137133973),
+                               error_rate=2.0, raw_clusters=170966905, pf_clusters=164470667, cycles=151,
+                               pct_q30=0.961, mean_q=38.74961137133973),
             FlowcellLaneResult(flowcell_id='foo', lane_num=2, read_num=2, raw_density=100000, pf_density=100000,
-                           error_rate=2.0, raw_clusters=170966905, pf_clusters=164470667, cycles=151,
-                           pct_q30=0.94, mean_q=38.18423664140531)
+                               error_rate=2.0, raw_clusters=170966905, pf_clusters=164470667, cycles=151,
+                               pct_q30=0.94, mean_q=38.18423664140531)
         ]
         self.assertListEqual(actual, expected)
 
