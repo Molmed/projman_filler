@@ -12,12 +12,13 @@ from projman_filler.exceptions import FlowcellAlreadyInDb
 
 @click.command("projman_filler")
 @click.option('--force', is_flag=True)
+@click.option('--debug', is_flag=True)
 @click.argument('runfolder', type=click.Path())
-def main(runfolder, force):
+def main(runfolder, force, debug):
     """Console script for projman_filler."""
     try:
         db_connection_string = os.environ["PROJMAN_DB"]
-        app = App(db_connection_string)
+        app = App(db_connection_string, debug)
         app.insert_runfolder_into_db(runfolder, force)
     except FlowcellAlreadyInDb:
         print("Flowcell was already present in db.")
