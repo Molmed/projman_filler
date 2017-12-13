@@ -8,9 +8,12 @@ def _get_mean_q_scores(lane_dict):
     results = defaultdict(list)
 
     demultiplexing_results = lane_dict["DemuxResults"]
-    undetermined_results = lane_dict["Undetermined"]
+    if lane_dict.get("Undetermined"):
+        undetermined_results = lane_dict["Undetermined"]
+        demultiplex_info_dicts = demultiplexing_results + [undetermined_results]
+    else:
+        demultiplex_info_dicts = demultiplexing_results
 
-    demultiplex_info_dicts = demultiplexing_results + [undetermined_results]
     for sample_dict in demultiplex_info_dicts:
         read_metrics = sample_dict["ReadMetrics"]
         for read_metric in read_metrics:

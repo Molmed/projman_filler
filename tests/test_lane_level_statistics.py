@@ -3,7 +3,7 @@ import unittest
 from projman_filler.lane_level_statistics import calculate_lane_statistics
 from projman_filler.lane_level_statistics import FlowcellLaneResult
 
-from tests.test_utils import conversion_results
+from tests.test_utils import conversion_results, conversion_results_without_undetermined
 
 
 class TestLaneLevelStatistics(unittest.TestCase):
@@ -45,6 +45,30 @@ class TestLaneLevelStatistics(unittest.TestCase):
         ]
         self.assertListEqual(actual, expected)
 
+    def test_calculate_lane_level_stats_no_undetermined(self):
+        actual = list(calculate_lane_statistics(flowcell_name=self.flowcell_name,
+                                                conversion_results=conversion_results_without_undetermined,
+                                                reads_and_cycles=self.reads_and_cycles,
+                                                error_rates=self.error_rates,
+                                                densities=self.densities,
+                                                q30s=self.q30s))
+        # The test data has
+        self.assertEqual(len(actual), 4)
+        expected = [
+            FlowcellLaneResult(flowcell_id='foo', lane_num=1, read_num=1, raw_density=100000, pf_density=100000,
+                               error_rate=2.0, raw_clusters=168865204, pf_clusters=162726440, cycles=151,
+                               pct_q30=0.95, mean_q=38.838484242499376),
+            FlowcellLaneResult(flowcell_id='foo', lane_num=1, read_num=2, raw_density=100000, pf_density=100000,
+                               error_rate=2.0, raw_clusters=168865204, pf_clusters=162726440, cycles=151,
+                               pct_q30=0.92, mean_q=38.347822285262204),
+            FlowcellLaneResult(flowcell_id='foo', lane_num=2, read_num=1, raw_density=100000, pf_density=100000,
+                               error_rate=2.0, raw_clusters=170966905, pf_clusters=164470667, cycles=151,
+                               pct_q30=0.961, mean_q=38.81856298771521),
+            FlowcellLaneResult(flowcell_id='foo', lane_num=2, read_num=2, raw_density=100000, pf_density=100000,
+                               error_rate=2.0, raw_clusters=170966905, pf_clusters=164470667, cycles=151,
+                               pct_q30=0.94, mean_q=38.309461018362995)
+        ]
+        self.assertListEqual(actual, expected)
 
 if __name__ == '__main__':
     unittest.main()
