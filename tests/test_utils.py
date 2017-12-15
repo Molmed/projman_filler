@@ -436,3 +436,66 @@ conversion_results_without_undetermined = [
         ],
     }
 ]
+
+conversion_results_without_index_metrics = [
+    {
+        "LaneNumber" : 1,
+        "TotalClustersRaw" : 168865204,
+        "TotalClustersPF" : 162726440,
+        "Yield" : 32870740880,
+        "DemuxResults" : [
+            {
+                "SampleId" : "Sample_A",
+                "SampleName" : "A",
+                "NumberReads" : 81217423,
+                "Yield" : 16405919446,
+                "ReadMetrics" : [
+                    {
+                        "ReadNumber" : 1,
+                        "Yield" : 8202959723,
+                        "YieldQ30" : 8040893300,
+                        "QualityScoreSum" : 318615177292,
+                        "TrimmedBases" : 0
+                    },
+                    {
+                        "ReadNumber" : 2,
+                        "Yield" : 8202959723,
+                        "YieldQ30" : 7911912567,
+                        "QualityScoreSum" : 314774327026,
+                        "TrimmedBases" : 0
+                    }
+                ]
+            },
+        ],
+    },
+    {
+        "LaneNumber" : 2,
+        "TotalClustersRaw" : 170966905,
+        "TotalClustersPF" : 164470667,
+        "Yield" : 33223074734,
+        "DemuxResults" : [
+            {
+                "SampleId" : "Sample_C",
+                "SampleName" : "C",
+                "NumberReads" : 82112656,
+                "Yield" : 16586756512,
+                "ReadMetrics" : [
+                    {
+                        "ReadNumber" : 1,
+                        "Yield" : 8293378256,
+                        "YieldQ30" : 8124748274,
+                        "QualityScoreSum" : 321961230718,
+                        "TrimmedBases" : 0
+                    },
+                    {
+                        "ReadNumber" : 2,
+                        "Yield" : 8293378256,
+                        "YieldQ30" : 7986468752,
+                        "QualityScoreSum" : 317888157381,
+                        "TrimmedBases" : 0
+                    }
+                ]
+            },
+        ],
+    }
+]
