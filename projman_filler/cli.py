@@ -10,6 +10,8 @@ import sys
 from projman_filler.app import App
 from projman_filler.exceptions import FlowcellAlreadyInDb
 
+from projman_filler import __version__ as projman_filler_version
+
 @click.command("projman_filler")
 @click.option('--force', is_flag=True)
 @click.option('--debug', is_flag=True)
@@ -17,6 +19,7 @@ from projman_filler.exceptions import FlowcellAlreadyInDb
 @click.argument('runfolder', type=click.Path())
 def main(runfolder, force, bcl2fastq_output_dir, debug):
     """Console script for projman_filler."""
+    print("projman_filler v{}".format(projman_filler_version))
     try:
         db_connection_string = os.environ["PROJMAN_DB"]
         app = App(db_connection_string, debug)
