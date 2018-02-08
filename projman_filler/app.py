@@ -46,9 +46,9 @@ class App(object):
     def parse_rundate_from_runfolder_name(self, runfolder_name):
         return os.path.basename(runfolder_name).split("_")[0]
 
-    def insert_runfolder_into_db(self, runfolder, bcl2fastq_output_dir, force=False):
+    def insert_runfolder_into_db(self, runfolder, bcl2fastq_stats, force=False):
 
-        stats_json = os.path.join(runfolder, bcl2fastq_output_dir, 'Stats', 'Stats.json')
+        stats_json = os.path.join(runfolder, bcl2fastq_stats, 'Stats.json')
 
         with open(stats_json, 'r') as f:
             stats_json = json.load(f)
