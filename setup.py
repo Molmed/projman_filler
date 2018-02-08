@@ -5,6 +5,8 @@
 
 from setuptools import setup, find_packages
 
+from projman_filler import __version__ as projman_filler_version
+
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
@@ -27,7 +29,7 @@ test_requirements = [
 
 setup(
     name='projman_filler',
-    version='0.1.0',
+    version=projman_filler_version,
     description="App for filling ProjMan",
     long_description=readme,
     author="Johan Dahlberg",

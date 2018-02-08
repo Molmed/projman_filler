@@ -22,6 +22,9 @@ export PROJMAN_DB="mssql+pymssql://<usernam>:<password>@<host>/<database>?charse
 projman_filler <path to the runfolder to insert into the db>
 ```
 
+The location of the bcl2fastq statistics folder, i.e. where Stats.json is located, can be specified using the `-b|--bcl2fastq-stats` flag.
+Specify the location relative to the runfolder. Default: "Unaligned/Stats"
+
 If the runfolder has already been loaded into the database, you can add the make projman_filler remove the old results
 and add the new once by adding the `--force` flag, i.e:
 
@@ -38,7 +41,6 @@ Installing projman_filler can be done in the following way.
 Please note that projman_filler uses python3, ensure this is first installed.
 
  * Download the projman_filler delivery
- * Install the Illumina Interop library (this has to be done "manually" with pip): `pip install -f https://github.com/Illumina/interop/releases/latest interop`
  * Install projman_filler with pip as normal, i.e. `pip install <path to source>`
 
 Credits
