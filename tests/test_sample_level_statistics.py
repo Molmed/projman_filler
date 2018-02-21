@@ -94,12 +94,12 @@ class TestSampleLevelStatistics(unittest.TestCase):
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'tag_seq': 'unknown', 'lane_num': 1, 'read_num': 1, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
-             'pct_q30': 98.02429332249935, 'pct_tag_err': 0,
+             'pct_q30': 98.02429332249935, 'pct_tag_err': None,
              'library_name': 'A.library', 'mean_q': 38.84148990743496},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'tag_seq': 'unknown', 'lane_num': 1, 'read_num': 2, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
-             'pct_q30': 96.45192508767363, 'pct_tag_err': 0,
+             'pct_q30': 96.45192508767363, 'pct_tag_err': None,
              'library_name': 'A.library', 'mean_q': 38.373262536376345}]
 
         expected_sample_a = list(map(lambda x: SampleResult(**x), list_of_values_for_a))
