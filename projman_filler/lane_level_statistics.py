@@ -18,7 +18,9 @@ def _get_mean_q_scores(lane_dict):
         read_metrics = sample_dict["ReadMetrics"]
         for read_metric in read_metrics:
             read_nbr = read_metric["ReadNumber"]
-            results[read_nbr].append(float(read_metric["QualityScoreSum"]) / read_metric["Yield"])
+            # If yield is 0 for a sample we do not add it to the mean score
+            if read_metric["Yield"] != 0:
+                results[read_nbr].append(float(read_metric["QualityScoreSum"]) / read_metric["Yield"])
 
     # Calculate the mean within each read
     for k, v in results.items():
