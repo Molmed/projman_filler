@@ -1,6 +1,6 @@
 
 from collections import defaultdict
-
+import math
 from projman_filler.models.db_models import FlowcellLaneResult
 
 def _get_mean_q_scores(lane_dict):
@@ -37,8 +37,12 @@ def calculate_lane_statistics(flowcell_name, conversion_results, reads_and_cycle
 
         for read_nbr in reads_and_cycles.keys():
             cycles = reads_and_cycles[read_nbr]
+            
+            if math.isnan(error_rates[lane_nbr][read_nbr]):
+                error_rate = None
+            else:
+                error_rate = error_rates[lane_nbr][read_nbr]
 
-            error_rate = error_rates[lane_nbr][read_nbr]
             raw_density = densities[lane_nbr][read_nbr]["raw_density"]
             pf_density = densities[lane_nbr][read_nbr]["pass_filter_density"]
             # This will be given as a fraction to be compatible with legacy data /JD 2017-10-04
