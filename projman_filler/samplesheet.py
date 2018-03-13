@@ -93,19 +93,20 @@ class Samplesheet(object):
         samples = map(row_to_sample_row, samplesheet_df.iterrows())
         return list(samples)
 
-    def _get_matching_sample(self, sample_name, lane):
-        matching = list(filter(lambda x: x.sample_name == sample_name and x.lane == lane, self.samples))
+    def _get_matching_sample(self, sample_id, lane):
+
+        matching = list(filter(lambda x: x.sample_id == sample_id and x.lane == lane, self.samples))
 
         if len(matching) != 1:
             raise KeyError()
         else:
             return matching[0]
 
-    def project_for_sample(self, sample_name, lane):
-        return self._get_matching_sample(sample_name, lane).sample_project
+    def project_for_sample(self, sample_id, lane):
+        return self._get_matching_sample(sample_id, lane).sample_project
 
-    def library_name_for_sample(self, sample_name, lane):
-        description = self._get_matching_sample(sample_name, lane).description
+    def library_name_for_sample(self, sample_id, lane):
+        description = self._get_matching_sample(sample_id, lane).description
         matching = list(filter(lambda x: "LIBRARY_NAME" in x, description.split(";")))
         if len(matching) != 1:
             return None

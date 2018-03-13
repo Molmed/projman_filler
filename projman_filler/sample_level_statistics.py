@@ -44,9 +44,10 @@ def calculate_sample_statistics(flowcell_name, conversion_results, reads_and_cyc
         for sample_demux_result in sample_demux_results:
             # In samplesheets from the lims this is prefixed with the project name
             sample_name = sample_demux_result["SampleName"]
+            sample_id = sample_demux_result["SampleId"]
 
-            sample_project = samplesheet.project_for_sample(sample_name, lane_nbr)
-            sample_library_name = samplesheet.library_name_for_sample(sample_name, lane_nbr)
+            sample_project = samplesheet.project_for_sample(sample_id, lane_nbr)
+            sample_library_name = samplesheet.library_name_for_sample(sample_id, lane_nbr)
 
             sample_yield = float(sample_demux_result["Yield"])
             fraction_of_lane = sample_yield / lane_yield
