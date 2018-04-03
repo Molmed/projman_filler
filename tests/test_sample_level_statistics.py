@@ -3,7 +3,7 @@ import unittest
 from projman_filler.models.db_models import SampleResult
 from projman_filler.sample_level_statistics import calculate_sample_statistics
 
-from tests.test_utils import conversion_results, conversion_results_without_index_metrics, conversion_results_sample_with_no_reads
+from tests.test_utils import *
 
 
 class TestSampleLevelStatistics(unittest.TestCase):
@@ -22,16 +22,16 @@ class TestSampleLevelStatistics(unittest.TestCase):
 
     class SampleSheetMock(object):
         def __init__(self):
-            self.project_dict = {"A": "Project1",
-                                 "B": "Project2",
-                                 "C": "Project1",
-                                 "D": "Project2"}
+            self.project_dict = {"Sample_A": "Project1",
+                                 "Sample_B": "Project2",
+                                 "Sample_C": "Project1",
+                                 "Sample_D": "Project2"}
 
-        def project_for_sample(self, sample_name, lane):
-            return self.project_dict[sample_name]
+        def project_for_sample(self, sample_id, lane):
+            return self.project_dict[sample_id]
 
-        def library_name_for_sample(self, sample_name, lane):
-            return "{}.library".format(sample_name)
+        def library_name_for_sample(self, sample_id, lane):
+            return "{}.library".format(sample_id)
 
     samplesheet_mock = SampleSheetMock()
 
@@ -50,32 +50,32 @@ class TestSampleLevelStatistics(unittest.TestCase):
              'tag_seq': 'GTAGAGGA-CTCTCTAT', 'lane_num': 1, 'read_num': 1, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
              'pct_q30': 98.02429332249935, 'pct_tag_err': 0.671112157794024,
-             'library_name': 'A.library', 'mean_q': 38.84148990743496},
+             'library_name': 'Sample_A.library', 'mean_q': 38.84148990743496},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'tag_seq': 'GTAGAGGA-CTCTCTAT', 'lane_num': 1, 'read_num': 2, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
              'pct_q30': 96.45192508767363, 'pct_tag_err': 0.671112157794024,
-             'library_name': 'A.library', 'mean_q': 38.373262536376345},
+             'library_name': 'Sample_A.library', 'mean_q': 38.373262536376345},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'tag_seq': 'TAGGCATG-CTCTCTAT', 'lane_num': 1, 'read_num': 1, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
              'pct_q30': 98.02429332249935, 'pct_tag_err': 0.7880181078880083,
-             'library_name': 'A.library', 'mean_q': 38.84148990743496},
+             'library_name': 'Sample_A.library', 'mean_q': 38.84148990743496},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'tag_seq': 'TAGGCATG-CTCTCTAT', 'lane_num': 1, 'read_num': 2, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
              'pct_q30': 96.45192508767363, 'pct_tag_err': 0.7880181078880083,
-             'library_name': 'A.library', 'mean_q': 38.373262536376345},
+             'library_name': 'Sample_A.library', 'mean_q': 38.373262536376345},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'tag_seq': 'TCCTGAGC-CTCTCTAT', 'lane_num': 1, 'read_num': 1, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
              'pct_q30': 98.02429332249935, 'pct_tag_err': 0.7687463809335591,
-             'library_name': 'A.library', 'mean_q': 38.84148990743496},
+             'library_name': 'Sample_A.library', 'mean_q': 38.84148990743496},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'tag_seq': 'TCCTGAGC-CTCTCTAT', 'lane_num': 1, 'read_num': 2, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
              'pct_q30': 96.45192508767363, 'pct_tag_err': 0.7687463809335591,
-             'library_name': 'A.library', 'mean_q': 38.373262536376345}]
+             'library_name': 'Sample_A.library', 'mean_q': 38.373262536376345}]
 
         expected_sample_a = list(map(lambda x: SampleResult(**x), list_of_values_for_a))
         self.assertListEqual(expected_sample_a, actual_sample_a)
@@ -95,12 +95,12 @@ class TestSampleLevelStatistics(unittest.TestCase):
              'tag_seq': 'unknown', 'lane_num': 1, 'read_num': 1, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
              'pct_q30': 98.02429332249935, 'pct_tag_err': None,
-             'library_name': 'A.library', 'mean_q': 38.84148990743496},
+             'library_name': 'Sample_A.library', 'mean_q': 38.84148990743496},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'tag_seq': 'unknown', 'lane_num': 1, 'read_num': 2, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
              'pct_q30': 96.45192508767363, 'pct_tag_err': None,
-             'library_name': 'A.library', 'mean_q': 38.373262536376345}]
+             'library_name': 'Sample_A.library', 'mean_q': 38.373262536376345}]
 
         expected_sample_a = list(map(lambda x: SampleResult(**x), list_of_values_for_a))
         self.assertListEqual(expected_sample_a, actual_sample_a)
@@ -121,12 +121,79 @@ class TestSampleLevelStatistics(unittest.TestCase):
              'tag_seq': 'GTAGAGGA-CTCTCTAT', 'lane_num': 1, 'read_num': 1, 'cycles': 151,
              'pct_lane': 0, 'pf_clusters': 0,
              'pct_q30': None, 'pct_tag_err': None,
-             'library_name': 'A.library', 'mean_q': None},
+             'library_name': 'Sample_A.library', 'mean_q': None},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'tag_seq': 'GTAGAGGA-CTCTCTAT', 'lane_num': 1, 'read_num': 2, 'cycles': 151,
              'pct_lane': 0, 'pf_clusters': 0,
              'pct_q30': None, 'pct_tag_err': None,
-             'library_name': 'A.library', 'mean_q': None}]
+             'library_name': 'Sample_A.library', 'mean_q': None}]
+
+        expected_sample_a = list(map(lambda x: SampleResult(**x), list_of_values_for_a))
+        self.assertListEqual(expected_sample_a, actual_sample_a)
+
+    def test_calculate_sample_level_statistics_samples_with_multiple_sample_ids(self):
+        #For this test we need to update the list of Sample IDs
+        self.samplesheet_mock_multiple_sampleIDs = self.SampleSheetMock()
+        self.samplesheet_mock_multiple_sampleIDs.project_dict = {"SI-GA-D1_1": "Project1",
+                                                                 "SI-GA-D1_2": "Project1",
+                                                                 "SI-GA-D1_3": "Project1",
+                                                                 "SI-GA-D1_4": "Project1",
+                                                                 "SI-GA-F2_1": "Project2",
+                                                                 "SI-GA-F2_2": "Project2",
+                                                                 "SI-GA-F2_3": "Project2",
+                                                                 "SI-GA-F2_4": "Project2",
+                                                                 "SI-GA-E1_1": "Project3",
+                                                                 "SI-GA-E1_2": "Project3",
+                                                                 "SI-GA-E1_3": "Project3",
+                                                                 "SI-GA-E1_4": "Project3",
+                                                                 "SI-GA-F1_1": "Project4",
+                                                                 "SI-GA-F1_2": "Project4",
+                                                                 "SI-GA-F1_3": "Project4",
+                                                                 "SI-GA-F1_4": "Project4"}
+
+        actual = list(calculate_sample_statistics(flowcell_name=self.flowcell_id,
+                                                  conversion_results=conversion_results_multiple_sampleIDs_per_sampleName,
+                                                  reads_and_cycles=self.reads_and_cycles,
+                                                  samplesheet=self.samplesheet_mock_multiple_sampleIDs))
+
+        # One row per sample, lane, index and read
+        self.assertEqual(len(actual), 4*1*4*2)
+
+        actual_sample_a = list(filter(lambda x: x.sample_name == 'A', actual))
+
+        list_of_values_for_a = [
+            {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
+             'lane_num': 1, 'pct_lane': 6.115905919800121, 'library_name': 'SI-GA-D1_1.library',
+             'tag_seq': 'CACTCGGA', 'pct_tag_err': 3.621424494761074, 'read_num': 1, 'cycles': 151,
+             'mean_q': 39.16345840568938, 'pct_q30': 92.45344394187265, 'pf_clusters': 2360121.0},
+            {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
+             'lane_num': 1, 'pct_lane': 6.115905919800121, 'library_name': 'SI-GA-D1_1.library',
+             'tag_seq': 'CACTCGGA', 'pct_tag_err': 3.621424494761074, 'read_num': 2, 'cycles': 151,
+             'mean_q': 36.559150347300495, 'pct_q30': 84.04189940076341, 'pf_clusters': 2360121.0},
+            {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
+             'lane_num': 1, 'pct_lane': 5.757983102514638, 'library_name': 'SI-GA-D1_2.library',
+             'tag_seq': 'GCTGAATT', 'pct_tag_err': 3.720388713046226, 'read_num': 1, 'cycles': 151,
+             'mean_q': 39.23153569054157, 'pct_q30': 92.65040530937226, 'pf_clusters': 2221999.0},
+            {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
+             'lane_num': 1, 'pct_lane': 5.757983102514638, 'library_name': 'SI-GA-D1_2.library',
+             'tag_seq': 'GCTGAATT', 'pct_tag_err': 3.720388713046226, 'read_num': 2, 'cycles': 151,
+             'mean_q': 36.748773746773196, 'pct_q30': 84.63309285113054, 'pf_clusters': 2221999.0},
+            {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
+             'lane_num': 1, 'pct_lane': 5.187123651369359, 'library_name': 'SI-GA-D1_3.library',
+             'tag_seq': 'TGAAGTAC', 'pct_tag_err': 3.5747525234737383, 'read_num': 1, 'cycles': 151,
+             'mean_q': 39.18503968413285, 'pct_q30': 92.50719688617771, 'pf_clusters': 2001705.0},
+            {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
+             'lane_num': 1, 'pct_lane': 5.187123651369359, 'library_name': 'SI-GA-D1_3.library',
+             'tag_seq': 'TGAAGTAC', 'pct_tag_err': 3.5747525234737383, 'read_num': 2, 'cycles': 151,
+             'mean_q': 36.757323706043906, 'pct_q30': 84.6543801541636, 'pf_clusters': 2001705.0},
+            {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
+             'lane_num': 1, 'pct_lane': 6.201171788958993, 'library_name': 'SI-GA-D1_4.library',
+             'tag_seq': 'ATGCTCCG', 'pct_tag_err': 3.622402607578274, 'read_num': 1, 'cycles': 151,
+             'mean_q': 39.17663714585525, 'pct_q30': 92.50440798869728, 'pf_clusters': 2393025.0},
+            {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
+             'lane_num': 1, 'pct_lane': 6.201171788958993, 'library_name': 'SI-GA-D1_4.library',
+             'tag_seq': 'ATGCTCCG', 'pct_tag_err': 3.622402607578274, 'read_num': 2, 'cycles': 151,
+              'mean_q': 36.580552589683414, 'pct_q30': 84.11983530225224, 'pf_clusters': 2393025.0}]
 
         expected_sample_a = list(map(lambda x: SampleResult(**x), list_of_values_for_a))
         self.assertListEqual(expected_sample_a, actual_sample_a)
