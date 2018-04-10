@@ -37,7 +37,7 @@ def calculate_lane_statistics(flowcell_name, conversion_results, reads_and_cycle
 
         for read_nbr in reads_and_cycles.keys():
             cycles = reads_and_cycles[read_nbr]
-            
+
             if math.isnan(error_rates[lane_nbr][read_nbr]):
                 error_rate = None
             else:
@@ -47,7 +47,10 @@ def calculate_lane_statistics(flowcell_name, conversion_results, reads_and_cycle
             pf_density = densities[lane_nbr][read_nbr]["pass_filter_density"]
             # This will be given as a fraction to be compatible with legacy data /JD 2017-10-04
             percent_q30 = float(q30s[lane_nbr][read_nbr]) / 100
-            mean_q_for_read = mean_q[read_nbr]
+            if not mean_q:
+                mean_q_for_read = None
+            else:
+                mean_q_for_read = mean_q[read_nbr]
             yield FlowcellLaneResult(flowcell_id=flowcell_name, lane_num=lane_nbr, read_num=read_nbr,
                                      raw_density=raw_density, pf_density=pf_density, error_rate=error_rate,
                                      raw_clusters=total_clusters_raw, pf_clusters=total_clusters_pf,

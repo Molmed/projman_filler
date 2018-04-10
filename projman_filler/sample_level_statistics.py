@@ -50,8 +50,12 @@ def calculate_sample_statistics(flowcell_name, conversion_results, reads_and_cyc
             sample_library_name = samplesheet.library_name_for_sample(sample_id, lane_nbr)
 
             sample_yield = float(sample_demux_result["Yield"])
-            fraction_of_lane = sample_yield / lane_yield
-            percent_of_lane = fraction_of_lane * 100
+            if sample_yield == 0:
+                fraction_of_lane = 0
+                percent_of_lane = 0
+            else:
+                fraction_of_lane = sample_yield / lane_yield
+                percent_of_lane = fraction_of_lane * 100
 
             read_metrics = sample_demux_result["ReadMetrics"]
 
