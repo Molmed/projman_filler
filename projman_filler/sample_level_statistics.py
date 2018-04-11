@@ -50,8 +50,12 @@ def calculate_sample_statistics(flowcell_name, conversion_results, reads_and_cyc
             sample_library_name = samplesheet.library_name_for_sample(sample_id, lane_nbr)
 
             sample_yield = float(sample_demux_result["Yield"])
-            fraction_of_lane = sample_yield / lane_yield
-            percent_of_lane = fraction_of_lane * 100
+            if lane_yield == 0:
+                fraction_of_lane = None
+                percent_of_lane = None
+            else:
+                fraction_of_lane = sample_yield / lane_yield
+                percent_of_lane = fraction_of_lane * 100
 
             read_metrics = sample_demux_result["ReadMetrics"]
 
@@ -73,7 +77,11 @@ def calculate_sample_statistics(flowcell_name, conversion_results, reads_and_cyc
                     else:
                         sample_result_with_index_copy.mean_q = read_metric["QualityScoreSum"] / read_metric["Yield"]
                         sample_result_with_index_copy.pct_q30 = (float(read_metric["YieldQ30"]) / read_metric["Yield"])*100
-
-                    sample_result_with_index_copy.pf_clusters = total_clusters_pf * fraction_of_lane
+                    
+                    if fraction_of_lane is None: 
+                        sample_result_with_index_copy.pf_clusters = 0
+                    else:
+                        sample_result_with_index_copy.pf_clusters = total_clusters_pf * fraction_of_lane
+                    
                     yield sample_result_with_index_copy
 
