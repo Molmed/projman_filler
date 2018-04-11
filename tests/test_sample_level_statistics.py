@@ -198,5 +198,32 @@ class TestSampleLevelStatistics(unittest.TestCase):
         expected_sample_a = list(map(lambda x: SampleResult(**x), list_of_values_for_a))
         self.assertListEqual(expected_sample_a, actual_sample_a)
 
+
+    def test_calculate_sample_level_statistics_empty_lane(self):
+        actual = list(calculate_sample_statistics(flowcell_name=self.flowcell_id,
+                                                  conversion_results=conversion_results_empty_lane,
+                                                  reads_and_cycles=self.reads_and_cycles,
+                                                  samplesheet=self.samplesheet_mock))
+
+        # One row per sample, lane , index and read
+        # In this case: 2 lanes, 2 reads, 3 samples with 3 indices and 1 with 1 index
+        self.assertEqual(len(actual), 3*3*2+1*1*2)
+
+        actual_sample_a = list(filter(lambda x: x.sample_name == 'A', actual))
+        list_of_values_for_a = [
+            {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
+             'tag_seq': 'GTAGAGGA-CTCTCTAT', 'lane_num': 1, 'read_num': 1, 'cycles': 151,
+             'pct_lane': None, 'pf_clusters': 0,
+             'pct_q30': None, 'pct_tag_err': None,
+             'library_name': 'Sample_A.library', 'mean_q': None},
+            {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
+             'tag_seq': 'GTAGAGGA-CTCTCTAT', 'lane_num': 1, 'read_num': 2, 'cycles': 151,
+             'pct_lane': None, 'pf_clusters': 0,
+             'pct_q30': None, 'pct_tag_err': None,
+             'library_name': 'Sample_A.library', 'mean_q': None}]
+
+        expected_sample_a = list(map(lambda x: SampleResult(**x), list_of_values_for_a))
+        self.assertListEqual(expected_sample_a, actual_sample_a)
+
 if __name__ == '__main__':
     unittest.main(),
