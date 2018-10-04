@@ -13,7 +13,7 @@ with open('README.md') as readme_file:
 requirements = [
     'Click>=6.0',
     'xmltodict',
-    'interop',
+    'interop>=1.1.5',
     'SQLAlchemy',
     'pymssql',
     'pandas'
