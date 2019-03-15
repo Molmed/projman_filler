@@ -6,7 +6,10 @@ from interop import py_interop_run_metrics, py_interop_run, py_interop_summary
 
 class InteropService(object):
 
-    def __init__(self, runfolder):
+    def __init__(self, runfolder, read_mapper):
+
+        self.read_mapper = read_mapper
+
         run_metrics = py_interop_run_metrics.run_metrics()
         run_metrics.run_info()
 
@@ -18,23 +21,14 @@ class InteropService(object):
         py_interop_summary.summarize_run_metrics(run_metrics, summary)
 
         self.summary = summary
-
-    def get_non_index_reads(self):
-        # First pick-out the reads which are not index reads
-        non_index_reads = []
-        for read_nbr in range(self.summary.size()):
-            if not self.summary.at(read_nbr).read().is_index():
-                non_index_reads.append(read_nbr)
-        return non_index_reads
+        self.non_index_reads = self.read_mapper.get_non_index_reads(self.summary)
 
     def get_error_rates(self):
         lanes = self.summary.lane_count()
 
-        non_index_reads = self.get_non_index_reads()
-
         error_rates = defaultdict(dict)
         # "Renumber" the reads to have their intuitive read numbers, i.e. Read 1 -> 1, Read 2 -> 2
-        for new_nbr, old_read in enumerate(non_index_reads):
+        for new_nbr, old_read in enumerate(self.non_index_reads):
             for lane in range(lanes):
                 read = self.summary.at(old_read).at(lane)
                 error_rate = read.error_rate().mean()
@@ -44,11 +38,9 @@ class InteropService(object):
     def get_densities(self):
         lanes = self.summary.lane_count()
 
-        non_index_reads = self.get_non_index_reads()
-
         densities = defaultdict(dict)
         # "Renumber" the reads to have their intuitive read numbers, i.e. Read 1 -> 1, Read 2 -> 2
-        for new_nbr, original_read_nbr in enumerate(non_index_reads):
+        for new_nbr, original_read_nbr in enumerate(self.non_index_reads):
             for lane in range(lanes):
                 read = self.summary.at(original_read_nbr).at(lane)
                 cluster_density = read.density().mean()
@@ -60,11 +52,9 @@ class InteropService(object):
     def get_q30(self):
         lanes = self.summary.lane_count()
 
-        non_index_reads = self.get_non_index_reads()
-
         q30s = defaultdict(dict)
         # "Renumber" the reads to have their intuitive read numbers, i.e. Read 1 -> 1, Read 2 -> 2
-        for new_nbr, original_read_nbr in enumerate(non_index_reads):
+        for new_nbr, original_read_nbr in enumerate(self.non_index_reads):
             for lane in range(lanes):
                 q30 = self.summary.at(original_read_nbr).at(lane).percent_gt_q30()
                 q30s[lane+1][new_nbr+1] = q30
