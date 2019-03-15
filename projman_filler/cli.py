@@ -12,6 +12,7 @@ from projman_filler.exceptions import FlowcellAlreadyInDb
 
 from projman_filler import __version__ as projman_filler_version
 
+
 @click.command("projman_filler")
 @click.option('--force', is_flag=True)
 @click.option('--debug', is_flag=True)
@@ -27,6 +28,7 @@ def main(runfolder, force, bcl2fastq_stats, debug):
     except FlowcellAlreadyInDb:
         print("Flowcell was already present in db.")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

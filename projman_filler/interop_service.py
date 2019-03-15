@@ -69,4 +69,3 @@ class InteropService(object):
                 q30 = self.summary.at(original_read_nbr).at(lane).percent_gt_q30()
                 q30s[lane+1][new_nbr+1] = q30
         return q30s
-

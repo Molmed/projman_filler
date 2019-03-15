@@ -3,6 +3,7 @@ from collections import defaultdict
 import math
 from projman_filler.models.db_models import FlowcellLaneResult
 
+
 def _get_mean_q_scores(lane_dict):
 
     results = defaultdict(list)
@@ -55,4 +56,3 @@ def calculate_lane_statistics(flowcell_name, conversion_results, reads_and_cycle
                                      raw_density=raw_density, pf_density=pf_density, error_rate=error_rate,
                                      raw_clusters=total_clusters_raw, pf_clusters=total_clusters_pf,
                                      cycles=cycles, pct_q30=percent_q30, mean_q=mean_q_for_read)
-

@@ -1,6 +1,7 @@
 
 from pandas import read_csv
 
+
 class SampleRow:
     """
     Provides a representation of the information presented in a Illumina Samplesheet.
@@ -49,6 +50,7 @@ class SampleRow:
             return self.__dict__ == other.__dict__
         else:
             False
+
 
 class Samplesheet(object):
     """
