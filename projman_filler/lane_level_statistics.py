@@ -1,7 +1,10 @@
 
 from collections import defaultdict
 import math
+import sys
+
 from projman_filler.models.db_models import FlowcellLaneResult
+
 
 def _get_mean_q_scores(lane_dict):
 
@@ -37,11 +40,19 @@ def calculate_lane_statistics(flowcell_name, conversion_results, reads_and_cycle
 
         for read_nbr in reads_and_cycles.keys():
             cycles = reads_and_cycles[read_nbr]
-
-            if math.isnan(error_rates[lane_nbr][read_nbr]):
-                error_rate = None
-            else:
-                error_rate = error_rates[lane_nbr][read_nbr]
+            try:
+                if math.isnan(error_rates[lane_nbr][read_nbr]):
+                    error_rate = None
+                else:
+                    error_rate = error_rates[lane_nbr][read_nbr]
+            except KeyError as e:
+                key_nbr = e.args[0]
+                if key_nbr == 3:
+                    print("Found a third read in the in the Stats.json file, but no third read in the InterOp data, "
+                          "perhaps you want to use --atac-seq-mode?")
+                    sys.exit(1)
+                else:
+                    raise e
 
             raw_density = densities[lane_nbr][read_nbr]["raw_density"]
             pf_density = densities[lane_nbr][read_nbr]["pass_filter_density"]
@@ -55,4 +66,3 @@ def calculate_lane_statistics(flowcell_name, conversion_results, reads_and_cycle
                                      raw_density=raw_density, pf_density=pf_density, error_rate=error_rate,
                                      raw_clusters=total_clusters_raw, pf_clusters=total_clusters_pf,
                                      cycles=cycles, pct_q30=percent_q30, mean_q=mean_q_for_read)
-

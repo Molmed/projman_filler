@@ -76,12 +76,12 @@ def calculate_sample_statistics(flowcell_name, conversion_results, reads_and_cyc
                         sample_result_with_index_copy.pct_q30 = None
                     else:
                         sample_result_with_index_copy.mean_q = read_metric["QualityScoreSum"] / read_metric["Yield"]
-                        sample_result_with_index_copy.pct_q30 = (float(read_metric["YieldQ30"]) / read_metric["Yield"])*100
-                    
-                    if fraction_of_lane is None: 
+                        sample_result_with_index_copy.pct_q30 = (
+                            float(read_metric["YieldQ30"]) / read_metric["Yield"])*100
+
+                    if fraction_of_lane is None:
                         sample_result_with_index_copy.pf_clusters = 0
                     else:
                         sample_result_with_index_copy.pf_clusters = total_clusters_pf * fraction_of_lane
-                    
-                    yield sample_result_with_index_copy
 
+                    yield sample_result_with_index_copy
