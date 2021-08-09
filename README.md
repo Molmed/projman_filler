@@ -32,16 +32,37 @@ and add the new once by adding the `--force` flag, i.e:
 export PROJMAN_DB="mssql+pymssql://<usernam>:<password>@<host>/<database>?charset=utf8"
 projman_filler --force <path to the runfolder to insert into the db>
 ```
+For more flags, see cli.py.
 
 Install instructions
 --------------------
 
 Installing projman_filler can be done in the following way.
 
-Please note that projman_filler uses python3, ensure this is first installed.
+Please note that projman_filler uses python 3.6, ensure this is first installed.
 
  * Download the projman_filler delivery
  * Install projman_filler with pip as normal, i.e. `pip install <path to source>`
+
+
+Development and testing
+-----------------------
+Set up a Python environment using the latest version of Python 3.6 (3.6.12 as of this writing).
+
+Then run:
+```
+ pip install -e . -r requirements_dev.txt
+```
+To run the app locally:
+```
+export PROJMAN_DB="mssql+pymssql://<usernam>:<password>@<host>/<database>?charset=utf8"
+&& python ./projman_filler/cli.py <path to the runfolder to insert into the db>
+```
+
+Run tests with:
+```
+ python setup.py pytest
+```
 
 Credits
 ---------

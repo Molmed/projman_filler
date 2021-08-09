@@ -2,6 +2,4 @@
 
 """Top-level package for ProjMan Filler."""
 
-__author__ = """Johan Dahlberg"""
-__email__ = 'johan.dahlberg@medsci.uu.se'
-__version__ = '1.6.1'
+__version__ = '1.6.2'
