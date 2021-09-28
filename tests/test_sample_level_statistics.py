@@ -2,8 +2,10 @@ import unittest
 
 from projman_filler.models.db_models import SampleResult
 from projman_filler.sample_level_statistics import calculate_sample_statistics
+from projman_filler.bcl2fastq_run_stats_parser import Bcl2fastqRunStatsParser
 
 from tests.test_utils import *
+from unittest.mock import MagicMock
 
 
 class TestSampleLevelStatistics(unittest.TestCase):
@@ -35,9 +37,16 @@ class TestSampleLevelStatistics(unittest.TestCase):
 
     samplesheet_mock = SampleSheetMock()
 
+    def preprocess_conversion_results(self, cr):
+        Bcl2fastqRunStatsParser.__init__ = MagicMock(return_value=None)
+        stats_parser = Bcl2fastqRunStatsParser("foo")
+        stats_parser._stats = {'ConversionResults': cr}
+        return stats_parser.get_conversion_results()
+
     def test_calculate_sample_level_statistics(self):
+        cr = self.preprocess_conversion_results(conversion_results)
         actual = list(calculate_sample_statistics(flowcell_name=self.flowcell_id,
-                                                  conversion_results=conversion_results,
+                                                  conversion_results=cr,
                                                   reads_and_cycles=self.reads_and_cycles,
                                                   samplesheet=self.samplesheet_mock))
 
@@ -81,8 +90,9 @@ class TestSampleLevelStatistics(unittest.TestCase):
         self.assertListEqual(expected_sample_a, actual_sample_a)
 
     def test_calculate_sample_level_statistics_without_index_metrics(self):
+        cr = self.preprocess_conversion_results(conversion_results_without_index_metrics)
         actual = list(calculate_sample_statistics(flowcell_name=self.flowcell_id,
-                                                  conversion_results=conversion_results_without_index_metrics,
+                                                  conversion_results=cr,
                                                   reads_and_cycles=self.reads_and_cycles,
                                                   samplesheet=self.samplesheet_mock))
 
@@ -106,8 +116,9 @@ class TestSampleLevelStatistics(unittest.TestCase):
         self.assertListEqual(expected_sample_a, actual_sample_a)
 
     def test_calculate_sample_level_statistics_sample_with_no_reads(self):
+        cr = self.preprocess_conversion_results(conversion_results_sample_with_no_reads)
         actual = list(calculate_sample_statistics(flowcell_name=self.flowcell_id,
-                                                  conversion_results=conversion_results_sample_with_no_reads,
+                                                  conversion_results=cr,
                                                   reads_and_cycles=self.reads_and_cycles,
                                                   samplesheet=self.samplesheet_mock))
 
@@ -151,8 +162,9 @@ class TestSampleLevelStatistics(unittest.TestCase):
                                                                  "SI-GA-F1_3": "Project4",
                                                                  "SI-GA-F1_4": "Project4"}
 
+        cr = self.preprocess_conversion_results(conversion_results_multiple_sampleIDs_per_sampleName)
         actual = list(calculate_sample_statistics(flowcell_name=self.flowcell_id,
-                                                  conversion_results=conversion_results_multiple_sampleIDs_per_sampleName,
+                                                  conversion_results=cr,
                                                   reads_and_cycles=self.reads_and_cycles,
                                                   samplesheet=self.samplesheet_mock_multiple_sampleIDs))
 
@@ -200,8 +212,9 @@ class TestSampleLevelStatistics(unittest.TestCase):
 
 
     def test_calculate_sample_level_statistics_empty_lane(self):
+        cr = self.preprocess_conversion_results(conversion_results_empty_lane)
         actual = list(calculate_sample_statistics(flowcell_name=self.flowcell_id,
-                                                  conversion_results=conversion_results_empty_lane,
+                                                  conversion_results=cr,
                                                   reads_and_cycles=self.reads_and_cycles,
                                                   samplesheet=self.samplesheet_mock))
 

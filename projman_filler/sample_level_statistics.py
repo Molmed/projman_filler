@@ -33,13 +33,13 @@ def _add_tag_and_tag_error(sample_result, sample_demux_result):
 
 
 def calculate_sample_statistics(flowcell_name, conversion_results, reads_and_cycles, samplesheet):
-    for lane_dict in conversion_results:
-
-        lane_nbr = lane_dict["LaneNumber"]
-        total_clusters_raw = lane_dict["TotalClustersRaw"]
-        total_clusters_pf = lane_dict["TotalClustersPF"]
-        lane_yield = lane_dict["Yield"]
-        sample_demux_results = lane_dict["DemuxResults"]
+    for lane in conversion_results:
+        lane_nbr, \
+            total_clusters_raw, \
+            total_clusters_pf, \
+            mean_q, \
+            lane_yield, \
+            sample_demux_results = lane.get_stats()
 
         for sample_demux_result in sample_demux_results:
             # In samplesheets from the lims this is prefixed with the project name
