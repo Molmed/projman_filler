@@ -2,4 +2,4 @@
 
 """Top-level package for ProjMan Filler."""
 
-__version__ = '1.6.2'
+__version__ = '1.6.3-rc1'
