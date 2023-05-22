@@ -11,12 +11,12 @@ with open('README.md') as readme_file:
     readme = readme_file.read()
 
 requirements = [
-    'Click~=8.1.3',
+    'Click~=8.0.4',
     'xmltodict~=0.13.0',
     'interop~=1.2.3',
-    'SQLAlchemy~=2.0.13',
+    'SQLAlchemy~=1.4.48',
     'pymssql~=2.2.7',
-    'pandas~=2.0.1'
+    'pandas~=1.1.5'
 ]
 
 setup_requirements = [
