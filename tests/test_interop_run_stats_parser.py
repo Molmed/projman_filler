@@ -24,5 +24,13 @@ class TestRunStatsParsers(unittest.TestCase):
         expected = [1, 2, 3]
         self.assertEqual(reads, expected)
 
+    def test_lanes_total_clusters(self):
+        non_index_reads = [0, 2, 3]
+        runfolder = "tests/resources/170726_D00118_0303_BCB1TVANXX2"
+        iop = InteropRunStatsParser(runfolder, non_index_reads)
+        for lane in iop._conversion_results:
+            assert lane._total_clusters_pf is not None and lane._total_clusters_pf != 0
+            assert lane._total_clusters_raw is not None and lane._total_clusters_raw != 0
+
 if __name__ == '__main__':
     unittest.main()
