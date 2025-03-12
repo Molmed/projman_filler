@@ -26,7 +26,7 @@ class TestRunStatsParsers(unittest.TestCase):
 
     def test_lanes_total_clusters(self):
         non_index_reads = [0, 2, 3]
-        runfolder = "tests/resources/170726_D00118_0303_BCB1TVANXX2"
+        runfolder = "tests/resources/200624_A00834_0183_BHMTFYTINY"
         iop = InteropRunStatsParser(runfolder, non_index_reads)
         for lane in iop._conversion_results:
             assert lane._total_clusters_pf is not None and lane._total_clusters_pf != 0
