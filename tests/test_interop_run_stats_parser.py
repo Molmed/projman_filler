@@ -12,10 +12,10 @@ class TestRunStatsParsers(unittest.TestCase):
         interop.summary = MagicMock()
 
     def test_interop_standardize_read_numbers(self):
-        self._setup_mocks()
+        runfolder = "tests/resources/200624_A00834_0183_BHMTFYTINY"
 
         non_index_reads = [0, 2, 3]
-        iop = InteropRunStatsParser("foo", non_index_reads)
+        iop = InteropRunStatsParser(runfolder, non_index_reads)
         remapped = iop._standardize_read_numbers()
         expected = {1: 0, 2: 2, 3: 3}
         self.assertEqual(remapped, expected)
