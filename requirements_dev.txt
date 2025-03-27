@@ -1,6 +1,6 @@
-pip>=19.2
+pip~=23.0.1
 bumpversion~=0.6.0
-wheel~=0.38.1
+wheel~=0.45.1
 coverage~=6.2
 Sphinx~=5.3.0
 

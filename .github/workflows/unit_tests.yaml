@@ -20,7 +20,5 @@ jobs:
     
     - name: Launch tests
       run: |
-        pytest --cov=checkQC --cov-report=xml tests/
+        pytest tests/
     
-    - name: Update data on codecov
-      uses: codecov/codecov-action@v3
