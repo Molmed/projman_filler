@@ -5,12 +5,6 @@ from interop import py_interop_run, py_interop_run_metrics, py_interop_summary
 import interop
 
 class TestRunStatsParsers(unittest.TestCase):
-    def _setup_mocks(self):
-        py_interop_run.info = MagicMock()
-        py_interop_run_metrics.run_metrics = MagicMock()
-        py_interop_summary.summarize_run_metrics = MagicMock()
-        interop.summary = MagicMock()
-
     def test_interop_standardize_read_numbers(self):
         runfolder = "tests/resources/200624_A00834_0183_BHMTFYTINY"
 

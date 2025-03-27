@@ -47,7 +47,7 @@ Please note that projman_filler uses python 3.10, ensure this is first installed
 
 Development and testing
 -----------------------
-Set up a Python environment using the latest version of Python 3.10 (3.10.1 as of this writing).
+Set up a Python environment using the latest version of Python 3.10.
 
 Then run:
 ```
