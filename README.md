@@ -39,7 +39,7 @@ Install instructions
 
 Installing projman_filler can be done in the following way.
 
-Please note that projman_filler uses python 3.10, ensure this is first installed.
+Please note that projman_filler uses python 3.13.1, ensure this is first installed.
 
  * Download the projman_filler delivery
  * Install projman_filler with pip as normal, i.e. `pip install <path to source>`
@@ -47,7 +47,7 @@ Please note that projman_filler uses python 3.10, ensure this is first installed
 
 Development and testing
 -----------------------
-Set up a Python environment using the latest version of Python 3.10.
+Set up a Python environment using the latest version of Python 3.13.1
 
 Then run:
 ```
