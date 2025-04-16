@@ -120,6 +120,7 @@ class InteropRunStatsParser(RunStatsParserInterface):
         lanes = []
         for l in range(1, n_lanes+1):
             rows = df.loc[df['Lane'] == l][['ReadNumber','Reads', 'Reads Pf', 'IsIndex']]
+            rows = rows.reset_index()
             # Each 'Reads Pf' value represents the entire lane,
             # while 'Reads' (total clusters raw) must be summed over the non-index reads
             # See: https://github.com/Illumina/interop/issues/271

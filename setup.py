@@ -11,12 +11,12 @@ with open('README.md') as readme_file:
     readme = readme_file.read()
 
 requirements = [
-    'Click~=8.0.4',
-    'xmltodict~=0.13.0',
-    'interop~=1.2.3',
-    'SQLAlchemy~=1.4.48',
-    'pymssql~=2.2.7',
-    'pandas~=1.1.5'
+    'Click~=8.1.8',
+    'interop~=1.4.0',
+    'SQLAlchemy~=2.0.40',
+    'pymssql~=2.3.4',
+    'pandas~=2.2.3',
+    'numpy~=2.2.4'
 ]
 
 setup_requirements = [
@@ -51,7 +51,7 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.13.1',
     ],
     test_suite='tests',
     tests_require=test_requirements,
