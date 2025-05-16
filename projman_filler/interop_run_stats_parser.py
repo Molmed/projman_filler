@@ -131,7 +131,7 @@ class InteropRunStatsParser(RunStatsParserInterface):
                     # These are the same for the lane across all reads
                     total_clusters_pf = row['Reads Pf']
                     # These must be summed
-                    total_clusters_raw += row['Reads']
+                    total_clusters_raw = row['Reads']
             lanes.append(Lane(l, total_clusters_raw, total_clusters_pf))
         return lanes
 
