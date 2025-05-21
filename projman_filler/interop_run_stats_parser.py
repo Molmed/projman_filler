@@ -114,24 +114,19 @@ class InteropRunStatsParser(RunStatsParserInterface):
     def _get_conversion_results(self) -> list:
         ar = iop.summary(self._run_metrics, 'Lane')
         df = pd.DataFrame(ar)
-
+ 
         # Get statistics per-lane
         n_lanes = self._run_summary.lane_count()
         lanes = []
+
         for l in range(1, n_lanes+1):
             rows = df.loc[df['Lane'] == l][['ReadNumber','Reads', 'Reads Pf', 'IsIndex']]
             rows = rows.reset_index()
-            # Each 'Reads Pf' value represents the entire lane,
-            # while 'Reads' (total clusters raw) must be summed over the non-index reads
-            # See: https://github.com/Illumina/interop/issues/271
-            total_clusters_raw = 0
-            total_clusters_pf = 0
-            for index, row in rows.iterrows():
-                if index in self._non_index_reads:
-                    # These are the same for the lane across all reads
-                    total_clusters_pf = row['Reads Pf']
-                    # These must be summed
-                    total_clusters_raw = row['Reads']
+            
+            # These are the same for the lane across all reads
+            total_clusters_pf = rows.iloc[0].get('Reads Pf', 0)
+            total_clusters_raw = rows.iloc[0].get('Reads', 0)
+            
             lanes.append(Lane(l, total_clusters_raw, total_clusters_pf))
         return lanes
 
