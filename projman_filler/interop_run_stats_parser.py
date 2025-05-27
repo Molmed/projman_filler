@@ -114,7 +114,6 @@ class InteropRunStatsParser(RunStatsParserInterface):
     def _get_conversion_results(self) -> list:
         ar = iop.summary(self._run_metrics, 'Lane')
         df = pd.DataFrame(ar)
- 
         # Get statistics per-lane
         n_lanes = self._run_summary.lane_count()
         lanes = []

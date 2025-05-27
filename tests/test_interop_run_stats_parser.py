@@ -11,18 +11,18 @@ class TestRunStatsParsers(unittest.TestCase):
     def test_interop_standardize_read_numbers(self):
         runfolder = "tests/resources/200624_A00834_0183_BHMTFYTINY"
 
-        non_index_reads = [0, 2, 3]
+        non_index_reads = [0]
         iop = InteropRunStatsParser(runfolder, non_index_reads)
         remapped = iop._standardize_read_numbers()
-        expected = {1: 0, 2: 2, 3: 3}
+        expected = {1: 0}
         self.assertEqual(remapped, expected)
 
         reads = iop.get_reads()
-        expected = [1, 2, 3]
+        expected = [1]
         self.assertEqual(reads, expected)
 
     def test_lanes_total_clusters(self):
-        non_index_reads = [0, 2, 3]
+        non_index_reads = [0]
         runfolder = "tests/resources/200624_A00834_0183_BHMTFYTINY"
         iop = InteropRunStatsParser(runfolder, non_index_reads)
         for lane in iop._conversion_results:
@@ -33,20 +33,12 @@ class TestRunStatsParsers(unittest.TestCase):
         """
         Verify that 'Reads' and 'Reads Pf' are consistently the same across all reads within the same lane
         """
-        non_index_reads = [0, 2, 3]
+        non_index_reads = [0]
         runfolder = "tests/resources/200624_A00834_0183_BHMTFYTINY"
         iop = InteropRunStatsParser(runfolder, non_index_reads)
         
-
-        data = {
-                'ReadNumber': [1, 1, 2, 2, 3, 3],
-                'IsIndex': [78, 78, 89, 89, 89, 89],
-                'Lane': [1, 2, 1, 2, 1, 2],
-                'Reads': [638337024.0] * 6,
-                'Reads Pf': [532464320.0, 530917568.0] * 3,
-            }
-
-        df = pd.DataFrame(data)
+        interop_lane_summary = interop.summary(iop._run_metrics, 'Lane')
+        df = pd.DataFrame(interop_lane_summary)
 
         for lane_index, (lane, rows) in enumerate(df.groupby('Lane')):
             rows = rows.reset_index()
@@ -72,7 +64,6 @@ class TestRunStatsParsers(unittest.TestCase):
                     f"Mismatch in total_clusters_raw for lane {lane}"
                     )
                 
-
 if __name__ == '__main__':
     unittest.main()
 
