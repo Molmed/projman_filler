@@ -91,6 +91,7 @@ class InteropRunStatsParser(RunStatsParserInterface):
     def _interop_read_number(self, read_number) -> int:
         return self._standard_read_map[read_number]
 
+
     def _get_interop_read(self, read_number) -> object:
         return self._run_summary.at(self._interop_read_number(read_number))
 
@@ -121,12 +122,37 @@ class InteropRunStatsParser(RunStatsParserInterface):
         for l in range(1, n_lanes+1):
             rows = df.loc[df['Lane'] == l][['ReadNumber','Reads', 'Reads Pf', 'IsIndex']]
             rows = rows.reset_index()
-            
+
             # These are the same for the lane across all reads
             total_clusters_pf = rows.iloc[0].get('Reads Pf', 0)
             total_clusters_raw = rows.iloc[0].get('Reads', 0)
-            
+
             lanes.append(Lane(l, total_clusters_raw, total_clusters_pf))
         return lanes
 
 
+
+    def get_reads_and_cycles(self) -> dict:
+        reads_and_cycles = {}
+        for read in self._run_summary.run_info().read_info():
+            if not read.is_indexed_read():
+                reads_and_cycles[read.number()] = read.num_cycles()
+        return reads_and_cycle
+
+    def get_conversion_results2(self) -> list:
+        lanes = []
+        for lane_summary in self._run_summary.lane_summaries():
+            lane_nbr = lane_summary.lane()
+            total_clusters_raw = lane_summary.cluster_count_raw()
+            total_clusters_pf = lane_summary.cluster_count_pf()
+            lane_yield = lane_summary.yield_g()
+            mean_q_scores = self._get_q30_scores_by_read(lane_nbr)
+            sample_demux_results = []  # InterOp doesn't provide sample-level demux
+            lanes.append(Lane(lane_nbr, total_clusters_raw, total_clusters_pf, mean_q_scores, lane_yield, sample_demux_results))
+        return lanes
+
+    def _get_q30_scores_by_read(self, lane_nbr: int) -> dict:
+        q30_scores = defaultdict(float)
+        for read_summary in self._run_summary.read_summaries():
+            if read_summary.lane() == lane_nbr:
+                q30_scores[read_summa_run_run__ry.read()] = read_summary.q30()
