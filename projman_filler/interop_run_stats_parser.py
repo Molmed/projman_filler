@@ -53,6 +53,13 @@ class InteropRunStatsParser(RunStatsParserInterface):
     def get_cycles(self, read_number) -> int:
         read = self._get_interop_read_by_index(self._interop_read_number(read_number))
         return self._clean(read.total_cycles())
+    
+    def get_reads_and_cycles(self) -> dict:
+        """Returns number of cycles per read, e.g. {1: 151, 2: 151}."""
+        reads_and_cycles = {}
+        for read in self.get_reads():
+            reads_and_cycles[read] = self.get_cycles(read)
+        return reads_and_cycles
 
     def get_error_rate(self, read_number, lane_number) -> float:
         lane = self._get_interop_lane(read_number, lane_number)
@@ -112,47 +119,121 @@ class InteropRunStatsParser(RunStatsParserInterface):
                 non_index_reads.append(r)
         return non_index_reads
 
+    def get_mismatch_counts(self, target_lane, target_tile) -> dict:
+        """
+        Get mismatch counts for each lane and tile.
+
+        :param target_lane: Lane number to filter by.
+        :param target_tile: Tile number to filter by.
+        
+        Returns a dictionary with keys as mismatch counts.
+            Example: {"0": 100, "1": 50} means 100 perfect matches and 50 with one mismatch.
+            If no mismatch counts are found, returns an empty dictionary
+        """
+        error_metrics = self._run_metrics.error_metric_set()
+        mismatch_counts = {}
+
+        # Iterate through error metrics to find the target lane and tile
+        for i in range(error_metrics.size()):
+            metric = error_metrics.at(i)
+            lane = metric.lane()
+            tile = metric.tile()
+            if lane == target_lane and  tile == target_tile:
+                # Get mismatch cluster counts: index 0 = perfect, 1 = 1 mismatch, etc.
+                counts = [metric.mismatch_cluster_count(n) for n in range(2)]
+                
+                if counts:
+                    if "0" not in mismatch_counts:
+                        mismatch_counts = {
+                            "0": counts[0],
+                            "1": counts[1],
+                        }
+                    else:
+                        mismatch_counts["0"] += counts[0]
+                        mismatch_counts["1"] += counts[1]
+        
+        return mismatch_counts if mismatch_counts else None
+    
     def _get_conversion_results(self) -> list:
-        ar = iop.summary(self._run_metrics, 'Lane')
-        df = pd.DataFrame(ar)
-        # Get statistics per-lane
-        n_lanes = self._run_summary.lane_count()
+        """
+        Get conversion results from the run summary and metrics.
+        Returns a list of Lane objects with detailed metrics.
+        """
+        # Prepare to load index, and read metrics
+        run_metrics = self._run_metrics
+        valid_to_load = py_interop_run.uchar_vector(py_interop_run.MetricCount, 0)
+        py_interop_run_metrics.list_index_metrics_to_load(valid_to_load)
+        # Reload metrics with updated valid_to_load vector
+        run_metrics.read(self._runfolder, valid_to_load)
+
+        # Summarize index metrics
+        index_summary = py_interop_summary.index_flowcell_summary()
+        py_interop_summary.summarize_index_metrics(run_metrics, index_summary)
+
+        num_lanes = self._run_summary.at(0).size()
+        num_reads = self._run_summary.size()
         lanes = []
+        index_mercic_set = run_metrics.index_metric_set()
 
-        for l in range(1, n_lanes+1):
-            rows = df.loc[df['Lane'] == l][['ReadNumber','Reads', 'Reads Pf', 'IsIndex']]
-            rows = rows.reset_index()
+        # Iterate through each lane
+        for lane_index in range(num_lanes):
+            total_yield = 0
+            sample_demux_results = []
+            # Retrieve total reads and PF reads for the lane. index 0 is used 
+            # because total reads and PF reads are the same for all reads in the lane.
+            total_reads = self._run_summary.at(0).at(lane_index).reads()
+            total_reads_pf = self._run_summary.at(0).at(lane_index).reads_pf()
+            for read_nbr in range(num_reads):
+                lane_reads = self._run_summary.at(read_nbr).at(lane_index)
+                lane_demux = index_summary.at(lane_index)
+                
+                # Calculate yield in bases (from Gb)
+                lane_yield = \
+                    self._run_summary.at(read_nbr).at(lane_index).yield_g() * 1e9  # Convert from Gb to bases
+                total_yield += lane_yield
+                
+                # Get sample-level demux summary
+                sample = lane_demux.at(read_nbr)
+                # Retrieve mismatch counts for the lane and tile
+                mismatch_counts = self.get_mismatch_counts(
+                    lane_index+1, index_mercic_set.at(read_nbr).tile()
+                )
 
-            # These are the same for the lane across all reads
-            total_clusters_pf = rows.iloc[0].get('Reads Pf', 0)
-            total_clusters_raw = rows.iloc[0].get('Reads', 0)
+                # Construct index metrics
+                index_metrics = [{
+                    "IndexSequence": f"{sample.index1()}+{sample.index2()}",
+                    "MismatchCounts": mismatch_counts or {},
+                }]
+                read_metrics = []
+                sample_demux_results.append({
+                    "SampleName": "_".join(sample.sample_id().split("_")[1:]),
+                    "SampleId": sample.sample_id(),
+                    "IndexMetrics": index_metrics,
+                    "ReadMetrics": read_metrics,
+                    "Yield": lane_yield,
+                    "NumberReads": sample.cluster_count(),
+                })
+                # Collect read-level metrics for each sample read
+                for sample_index in range(lane_reads.size()): 
+                    reads_per_sample = lane_reads.at(sample_index)
+                    
+                    read_metrics.append({
+                        "ReadNumber": sample_index + 1,
+                        "Yield": reads_per_sample.yield_g() * 1e9,
+                        "YieldQ30":  (
+                                reads_per_sample.yield_g() * 
+                                (reads_per_sample.percent_gt_q30() / 100.0)
+                            )* 1e9,
+                        "PercentQ30": reads_per_sample.percent_gt_q30(),
+                        "PercentPF": reads_per_sample.cluster_count()
+                    })                       
 
-            lanes.append(Lane(l, total_clusters_raw, total_clusters_pf))
+            # Construct Lane object
+            lanes.append(
+                Lane(
+                    lane_index+1, total_reads, total_reads_pf, yld=total_yield, 
+                    sample_demux_results=sample_demux_results
+                )
+            )      
+
         return lanes
-
-
-
-    def get_reads_and_cycles(self) -> dict:
-        reads_and_cycles = {}
-        for read in self._run_summary.run_info().read_info():
-            if not read.is_indexed_read():
-                reads_and_cycles[read.number()] = read.num_cycles()
-        return reads_and_cycle
-
-    def get_conversion_results2(self) -> list:
-        lanes = []
-        for lane_summary in self._run_summary.lane_summaries():
-            lane_nbr = lane_summary.lane()
-            total_clusters_raw = lane_summary.cluster_count_raw()
-            total_clusters_pf = lane_summary.cluster_count_pf()
-            lane_yield = lane_summary.yield_g()
-            mean_q_scores = self._get_q30_scores_by_read(lane_nbr)
-            sample_demux_results = []  # InterOp doesn't provide sample-level demux
-            lanes.append(Lane(lane_nbr, total_clusters_raw, total_clusters_pf, mean_q_scores, lane_yield, sample_demux_results))
-        return lanes
-
-    def _get_q30_scores_by_read(self, lane_nbr: int) -> dict:
-        q30_scores = defaultdict(float)
-        for read_summary in self._run_summary.read_summaries():
-            if read_summary.lane() == lane_nbr:
-                q30_scores[read_summa_run_run__ry.read()] = read_summary.q30()

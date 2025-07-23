@@ -9,7 +9,6 @@ from projman_filler.lane_level_statistics import calculate_lane_statistics
 from projman_filler.sample_level_statistics import calculate_sample_statistics
 from projman_filler.exceptions import FlowcellAlreadyInDb
 from projman_filler.models.db_models import FlowcellRunfolder
-#from projman_filler.bcl2fastq_run_stats_parser import Bcl2fastqRunStatsParser
 from projman_filler.interop_run_stats_parser import InteropRunStatsParser
 
 from projman_filler.repositories.sample_results_repo import SampleResultRepo
@@ -63,11 +62,16 @@ class App(object):
         if olink_mode:
             print("Olink mode activated. Will read lane-level statistics from InterOp files instead of bcl2fastq Stats.json.")
             return self.insert_olink_runfolder_into_db(runfolder, force)
+        non_index_reads = None
 
-        bcl2fastq_stats = InteropRunStatsParser(bcl2fastq_stats_dir)
-        flowcell_name = bcl2fastq_stats.get_flowcell_name()
-        reads_and_cycles = bcl2fastq_stats.get_reads_and_cycles()
-        conversion_results = bcl2fastq_stats.get_conversion_results()
+        interop = InteropRunStatsParser(runfolder, non_index_reads)
+        if atac_seq_mode:
+            print("ATAC-seq mode activated. Will re-map read numbers according to settings used by bcl2fastq.")
+            non_index_reads = interop.get_non_index_reads()
+
+        flowcell_name = interop.get_flowcell_name()
+        reads_and_cycles = interop.get_reads_and_cycles()
+        conversion_results = interop.get_conversion_results()
 
         # Check if flowcell exists and should be overriden
         self.delete_existing_flowcell_from_db(flowcell_name, force)
@@ -76,23 +80,16 @@ class App(object):
         # that the second index should be interpreted as a non-index read.
         # So we allow overriding the Interop list of non-index-reads with
         # a custom list obtained from bcl2fastq stats. /ML 2021-09
-        non_index_reads = None
-        if atac_seq_mode:
-            print("ATAC-seq mode activated. Will re-map read numbers according to settings used by bcl2fastq.")
-            non_index_reads = bcl2fastq_stats.get_non_index_reads()
-
-        interop = InteropRunStatsParser(runfolder, non_index_reads)
         lane_stats = calculate_lane_statistics(interop, flowcell_name, conversion_results)
         self.flowcell_lane_results_repo.add(list(lane_stats))
 
         samplesheet_file = os.path.join(runfolder, "SampleSheet.csv")
         samplesheet = Samplesheet(samplesheet_file)
-
+        
         sample_stats = calculate_sample_statistics(flowcell_name, conversion_results, reads_and_cycles, samplesheet)
         self.sample_results_repo.add(list(sample_stats))
 
         self.insert_flowcell_runfolder_into_db(runfolder, flowcell_name)
-
 
     def insert_olink_runfolder_into_db(self, runfolder, force=False):
         interop = InteropRunStatsParser(runfolder)
