@@ -69,6 +69,7 @@ def calculate_sample_statistics(flowcell_name, conversion_results, reads_and_cyc
                     read_nbr = read_metric["ReadNumber"]
                     sample_result_with_index_copy.read_num = read_nbr
                     sample_result_with_index_copy.cycles = reads_and_cycles[read_nbr]
+                    sample_result_with_index_copy.mean_q = None
 
                     if read_metric["Yield"] == 0:
                         sample_result_with_index_copy.pct_q30 = None

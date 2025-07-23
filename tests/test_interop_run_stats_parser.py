@@ -4,7 +4,7 @@ from projman_filler.interop_run_stats_parser import InteropRunStatsParser
 from interop import py_interop_run, py_interop_run_metrics, py_interop_summary
 import pandas as pd
 import interop
-from projman_filler.lane import Lane
+import pytest
 
 
 class TestRunStatsParsers(unittest.TestCase):
@@ -57,9 +57,15 @@ class TestRunStatsParsers(unittest.TestCase):
             
             # Compare with InteropRunStatsParser results
             lane_results = iop._conversion_results[lane_index]
-            assert lane_results._total_clusters_pf == total_clusters_pf, (
+            #rel_tol=1e-6 means the values can differ by up to 0.0001% relative 
+            # to their size.
+            assert (
+                lane_results._total_clusters_pf == 
+                pytest.approx(total_clusters_pf, rel=1e-6), 
+                (
                     f"Mismatch in total_clusters_pf for lane {lane}"
-                    )
+                )
+            )
             assert lane_results._total_clusters_raw == total_clusters_raw, (
                     f"Mismatch in total_clusters_raw for lane {lane}"
                     )

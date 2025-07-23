@@ -2,7 +2,6 @@ import unittest
 
 from projman_filler.models.db_models import SampleResult
 from projman_filler.sample_level_statistics import calculate_sample_statistics
-from projman_filler.bcl2fastq_run_stats_parser import Bcl2fastqRunStatsParser
 
 from tests.test_utils import *
 from unittest.mock import MagicMock
@@ -38,10 +37,29 @@ class TestSampleLevelStatistics(unittest.TestCase):
     samplesheet_mock = SampleSheetMock()
 
     def preprocess_conversion_results(self, cr):
-        Bcl2fastqRunStatsParser.__init__ = MagicMock(return_value=None)
-        stats_parser = Bcl2fastqRunStatsParser("foo")
-        stats_parser._stats = {'ConversionResults': cr}
-        return stats_parser.get_conversion_results()
+        """
+        Prepares conversion results for testing by mocking the Lane objects.
+
+        :param cr: List of conversion results to preprocess.
+        
+        :return: List of mocked Lane objects.
+        """
+        conversion_results = []
+        for lane in cr:
+            lane_items = list(lane.items())
+            if 'Undetermined' in list(lane.keys()):
+                # [:-1] removes the 'Undetermined' key from the lane dict
+                lane_items = lane_items[:-1]
+            lane_items.insert(3, ('mean_q', None))
+            # Mock the Lane object
+            mock_lane = MagicMock()
+            lane_values=dict(lane_items).values()
+
+            mock_lane.get_stats.return_value = lane_values
+            conversion_results.append(mock_lane)
+ 
+        return conversion_results
+
 
     def test_calculate_sample_level_statistics(self):
         cr = self.preprocess_conversion_results(conversion_results)
@@ -59,32 +77,32 @@ class TestSampleLevelStatistics(unittest.TestCase):
              'tag_seq': 'GTAGAGGA-CTCTCTAT', 'lane_num': 1, 'read_num': 1, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
              'pct_q30': 98.02429332249935, 'pct_tag_err': 0.671112157794024,
-             'library_name': 'Sample_A.library', 'mean_q': 38.84148990743496},
+             'library_name': 'Sample_A.library', 'mean_q': None},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'tag_seq': 'GTAGAGGA-CTCTCTAT', 'lane_num': 1, 'read_num': 2, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
              'pct_q30': 96.45192508767363, 'pct_tag_err': 0.671112157794024,
-             'library_name': 'Sample_A.library', 'mean_q': 38.373262536376345},
+             'library_name': 'Sample_A.library', 'mean_q': None},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'tag_seq': 'TAGGCATG-CTCTCTAT', 'lane_num': 1, 'read_num': 1, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
              'pct_q30': 98.02429332249935, 'pct_tag_err': 0.7880181078880083,
-             'library_name': 'Sample_A.library', 'mean_q': 38.84148990743496},
+             'library_name': 'Sample_A.library', 'mean_q': None},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'tag_seq': 'TAGGCATG-CTCTCTAT', 'lane_num': 1, 'read_num': 2, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
              'pct_q30': 96.45192508767363, 'pct_tag_err': 0.7880181078880083,
-             'library_name': 'Sample_A.library', 'mean_q': 38.373262536376345},
+             'library_name': 'Sample_A.library', 'mean_q': None},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'tag_seq': 'TCCTGAGC-CTCTCTAT', 'lane_num': 1, 'read_num': 1, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
              'pct_q30': 98.02429332249935, 'pct_tag_err': 0.7687463809335591,
-             'library_name': 'Sample_A.library', 'mean_q': 38.84148990743496},
+             'library_name': 'Sample_A.library', 'mean_q': None},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'tag_seq': 'TCCTGAGC-CTCTCTAT', 'lane_num': 1, 'read_num': 2, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
              'pct_q30': 96.45192508767363, 'pct_tag_err': 0.7687463809335591,
-             'library_name': 'Sample_A.library', 'mean_q': 38.373262536376345}]
+             'library_name': 'Sample_A.library', 'mean_q': None}]
 
         expected_sample_a = list(map(lambda x: SampleResult(**x), list_of_values_for_a))
         self.assertListEqual(expected_sample_a, actual_sample_a)
@@ -105,12 +123,12 @@ class TestSampleLevelStatistics(unittest.TestCase):
              'tag_seq': 'unknown', 'lane_num': 1, 'read_num': 1, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
              'pct_q30': 98.02429332249935, 'pct_tag_err': None,
-             'library_name': 'Sample_A.library', 'mean_q': 38.84148990743496},
+             'library_name': 'Sample_A.library', 'mean_q': None},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'tag_seq': 'unknown', 'lane_num': 1, 'read_num': 2, 'cycles': 151,
              'pct_lane': 49.91040361971908, 'pf_clusters': 81217423.0,
              'pct_q30': 96.45192508767363, 'pct_tag_err': None,
-             'library_name': 'Sample_A.library', 'mean_q': 38.373262536376345}]
+             'library_name': 'Sample_A.library', 'mean_q': None}]
 
         expected_sample_a = list(map(lambda x: SampleResult(**x), list_of_values_for_a))
         self.assertListEqual(expected_sample_a, actual_sample_a)
@@ -177,35 +195,35 @@ class TestSampleLevelStatistics(unittest.TestCase):
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'lane_num': 1, 'pct_lane': 6.115905919800121, 'library_name': 'SI-GA-D1_1.library',
              'tag_seq': 'CACTCGGA', 'pct_tag_err': 3.621424494761074, 'read_num': 1, 'cycles': 151,
-             'mean_q': 39.16345840568938, 'pct_q30': 92.45344394187265, 'pf_clusters': 2360121.0},
+             'mean_q': None, 'pct_q30': 92.45344394187265, 'pf_clusters': 2360121.0},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'lane_num': 1, 'pct_lane': 6.115905919800121, 'library_name': 'SI-GA-D1_1.library',
              'tag_seq': 'CACTCGGA', 'pct_tag_err': 3.621424494761074, 'read_num': 2, 'cycles': 151,
-             'mean_q': 36.559150347300495, 'pct_q30': 84.04189940076341, 'pf_clusters': 2360121.0},
+             'mean_q': None, 'pct_q30': 84.04189940076341, 'pf_clusters': 2360121.0},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'lane_num': 1, 'pct_lane': 5.757983102514638, 'library_name': 'SI-GA-D1_2.library',
              'tag_seq': 'GCTGAATT', 'pct_tag_err': 3.720388713046226, 'read_num': 1, 'cycles': 151,
-             'mean_q': 39.23153569054157, 'pct_q30': 92.65040530937226, 'pf_clusters': 2221999.0},
+             'mean_q': None, 'pct_q30': 92.65040530937226, 'pf_clusters': 2221999.0},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'lane_num': 1, 'pct_lane': 5.757983102514638, 'library_name': 'SI-GA-D1_2.library',
              'tag_seq': 'GCTGAATT', 'pct_tag_err': 3.720388713046226, 'read_num': 2, 'cycles': 151,
-             'mean_q': 36.748773746773196, 'pct_q30': 84.63309285113054, 'pf_clusters': 2221999.0},
+             'mean_q': None, 'pct_q30': 84.63309285113054, 'pf_clusters': 2221999.0},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'lane_num': 1, 'pct_lane': 5.187123651369359, 'library_name': 'SI-GA-D1_3.library',
              'tag_seq': 'TGAAGTAC', 'pct_tag_err': 3.5747525234737383, 'read_num': 1, 'cycles': 151,
-             'mean_q': 39.18503968413285, 'pct_q30': 92.50719688617771, 'pf_clusters': 2001705.0},
+             'mean_q': None, 'pct_q30': 92.50719688617771, 'pf_clusters': 2001705.0},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'lane_num': 1, 'pct_lane': 5.187123651369359, 'library_name': 'SI-GA-D1_3.library',
              'tag_seq': 'TGAAGTAC', 'pct_tag_err': 3.5747525234737383, 'read_num': 2, 'cycles': 151,
-             'mean_q': 36.757323706043906, 'pct_q30': 84.6543801541636, 'pf_clusters': 2001705.0},
+             'mean_q': None, 'pct_q30': 84.6543801541636, 'pf_clusters': 2001705.0},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'lane_num': 1, 'pct_lane': 6.201171788958993, 'library_name': 'SI-GA-D1_4.library',
              'tag_seq': 'ATGCTCCG', 'pct_tag_err': 3.622402607578274, 'read_num': 1, 'cycles': 151,
-             'mean_q': 39.17663714585525, 'pct_q30': 92.50440798869728, 'pf_clusters': 2393025.0},
+             'mean_q': None, 'pct_q30': 92.50440798869728, 'pf_clusters': 2393025.0},
             {'flowcell_id': 'foo', 'project_id': 'Project1', 'sample_name': 'A',
              'lane_num': 1, 'pct_lane': 6.201171788958993, 'library_name': 'SI-GA-D1_4.library',
              'tag_seq': 'ATGCTCCG', 'pct_tag_err': 3.622402607578274, 'read_num': 2, 'cycles': 151,
-              'mean_q': 36.580552589683414, 'pct_q30': 84.11983530225224, 'pf_clusters': 2393025.0}]
+              'mean_q': None, 'pct_q30': 84.11983530225224, 'pf_clusters': 2393025.0}]
 
         expected_sample_a = list(map(lambda x: SampleResult(**x), list_of_values_for_a))
         self.assertListEqual(expected_sample_a, actual_sample_a)

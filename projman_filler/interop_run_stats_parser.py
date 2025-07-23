@@ -193,41 +193,44 @@ class InteropRunStatsParser(RunStatsParserInterface):
                 total_yield += lane_yield
                 
                 # Get sample-level demux summary
-                sample = lane_demux.at(read_nbr)
-                # Retrieve mismatch counts for the lane and tile
-                mismatch_counts = self.get_mismatch_counts(
-                    lane_index+1, index_mercic_set.at(read_nbr).tile()
-                )
+                try:
+                    sample = lane_demux.at(read_nbr)
+                    # Retrieve mismatch counts for the lane and tile
+                    mismatch_counts = self.get_mismatch_counts(
+                        lane_index+1, index_mercic_set.at(read_nbr).tile()
+                    )
 
-                # Construct index metrics
-                index_metrics = [{
-                    "IndexSequence": f"{sample.index1()}+{sample.index2()}",
-                    "MismatchCounts": mismatch_counts or {},
-                }]
-                read_metrics = []
-                sample_demux_results.append({
-                    "SampleName": "_".join(sample.sample_id().split("_")[1:]),
-                    "SampleId": sample.sample_id(),
-                    "IndexMetrics": index_metrics,
-                    "ReadMetrics": read_metrics,
-                    "Yield": lane_yield,
-                    "NumberReads": sample.cluster_count(),
-                })
-                # Collect read-level metrics for each sample read
-                for sample_index in range(lane_reads.size()): 
-                    reads_per_sample = lane_reads.at(sample_index)
-                    
-                    read_metrics.append({
-                        "ReadNumber": sample_index + 1,
-                        "Yield": reads_per_sample.yield_g() * 1e9,
-                        "YieldQ30":  (
-                                reads_per_sample.yield_g() * 
-                                (reads_per_sample.percent_gt_q30() / 100.0)
-                            )* 1e9,
-                        "PercentQ30": reads_per_sample.percent_gt_q30(),
-                        "PercentPF": reads_per_sample.cluster_count()
-                    })                       
-
+                    # Construct index metrics
+                    index_metrics = [{
+                        "IndexSequence": f"{sample.index1()}+{sample.index2()}",
+                        "MismatchCounts": mismatch_counts or {},
+                    }]
+                    read_metrics = []
+                    sample_demux_results.append({
+                        "SampleName": "_".join(sample.sample_id().split("_")[1:]),
+                        "SampleId": sample.sample_id(),
+                        "IndexMetrics": index_metrics,
+                        "ReadMetrics": read_metrics,
+                        "Yield": lane_yield,
+                        "NumberReads": sample.cluster_count(),
+                    })
+                    # Collect read-level metrics for each sample read
+                    for sample_index in range(lane_reads.size()): 
+                        reads_per_sample = lane_reads.at(sample_index)
+                        
+                        read_metrics.append({
+                            "ReadNumber": sample_index + 1,
+                            "Yield": reads_per_sample.yield_g() * 1e9,
+                            "YieldQ30":  (
+                                    reads_per_sample.yield_g() * 
+                                    (reads_per_sample.percent_gt_q30() / 100.0)
+                                )* 1e9,
+                            "PercentQ30": reads_per_sample.percent_gt_q30(),
+                            "PercentPF": reads_per_sample.cluster_count()
+                        })                       
+                except iop.py_interop_metrics.index_out_of_bounds_exception:
+                    # If the sample read is not found, continue to the next read
+                    continue
             # Construct Lane object
             lanes.append(
                 Lane(
