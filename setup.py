@@ -16,7 +16,14 @@ requirements = [
     'SQLAlchemy~=2.0.40',
     'pymssql~=2.3.4',
     'pandas~=2.2.3',
-    'numpy~=2.2.4'
+    'numpy~=2.2.4',
+    # checkQC must be installed manually
+    # git clone https://github.com/Molmed/checkQC.git
+    # cd checkQC
+    # sed -i 's/python_requires=.*$/python_requires=">=3.10",/' setup.py
+    # sed -i 's/^interop~=.*$/interop==1.4.0/' requirements/prod
+    # pip install --no-deps -r requirements/dev .
+
 ]
 
 setup_requirements = [

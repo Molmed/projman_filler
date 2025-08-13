@@ -4,6 +4,7 @@ import pandas as pd
 from math import isnan
 from projman_filler.run_stats_parser_interface import RunStatsParserInterface
 from projman_filler.lane import Lane
+from projman_filler.models.db_models import FlowcellLaneResult, SampleResult
 
 
 class InteropRunStatsParser(RunStatsParserInterface):
@@ -128,5 +129,67 @@ class InteropRunStatsParser(RunStatsParserInterface):
             
             lanes.append(Lane(l, total_clusters_raw, total_clusters_pf))
         return lanes
+    
+    def get_checkqc_interop_stats(self, qc_data, runfolder):
+        """
+        Gets run stats from checkqc illumina parser and the rest from iterop
 
+        Params:
+        :qc_data (acheckQC QCData object): results from checkQC illumina parser 
+            for specified demultiplexer
+        :runfolder (str): Runfolder path string
 
+        Returns:
+        : tuple of flowcell_lane_result, sample_results to be added to respective DB
+        """
+        from checkQC.parsers.illumina import _read_interop_summary
+        flowcell_lane_results = []
+        sample_results = []
+        
+        run_summary, index_summary = _read_interop_summary(runfolder)
+        flowcell_id = self.get_flowcell_name()  #self._run_info.flowcell_id()
+
+        for lane_no, lane_dict in qc_data.sequencing_metrics.items():
+            for read_no, read_dict in lane_dict["reads"].items():
+                if read_dict["is_index"]:
+                    continue
+                interop_lane = run_summary.at(read_no-1).at(lane_no-1)
+                cycles = run_summary.at(read_no-1).read().total_cycles()
+                error_rate = run_summary.at(0).at(lane_no-1).error_rate().mean()  # or interop_lane.error_rate().mean() ?,
+                
+                flowcell_lane_results.append(
+                     FlowcellLaneResult(
+                        flowcell_id=flowcell_id,
+                        lane_num=lane_no,
+                        read_num=read_no,
+                        raw_density=interop_lane.density().mean(),
+                        pf_density=interop_lane.density_pf().mean(),
+                        error_rate= None if isnan(error_rate) else error_rate,
+                        raw_clusters=run_summary.at(0).at(lane_no-1).cluster_count().mean(),  #Not sure if this should be cluster_count,
+                        pf_clusters= lane_dict["total_cluster_pf"],
+                        cycles=cycles,
+                        pct_q30=float((interop_lane.percent_gt_q30()) / 100),
+                    )
+                 )
+
+                sample_reads = index_summary.at(lane_no-1).at(read_no-1)
+                lane_summary =  run_summary.at(read_no-1).at(lane_no-1)
+                sample_results.append(
+                    SampleResult(
+                        flowcell_id=flowcell_id,
+                        project_id=sample_reads.project_name(),
+                        sample_name=sample_reads.project_name(),
+                        tag_seq=f"{sample_reads.index1()}-{sample_reads.index2()}",
+                        lane_num=lane_no,
+                        read_num=read_no,
+                        cycles=cycles,
+                        pct_lane="",
+                        pf_clusters=sample_reads.cluster_count(),
+                        pct_q30=read_dict["percent_q30"],
+                        pct_tag_err="",  #  (float(mismatch_counts) / float(number_of_reads))*100
+                        library_name="",
+                        mean_q=None,
+                    )
+                )
+    
+        return flowcell_lane_results, sample_results
