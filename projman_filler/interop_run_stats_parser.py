@@ -134,24 +134,28 @@ class InteropRunStatsParser(RunStatsParserInterface):
         mismatch_counts = {}
 
         # Iterate through error metrics to find the target lane and tile
-        for i in range(error_metrics.size()):
+        metrics_for_lane = error_metrics.metrics_for_lane(target_lane)
+
+        for i in range(metrics_for_lane.size()):
             metric = error_metrics.at(i)
-            lane = metric.lane()
             tile = metric.tile()
-            if lane == target_lane and  tile == target_tile:
-                # Get mismatch cluster counts: index 0 = perfect, 1 = 1 mismatch, etc.
-                counts = [metric.mismatch_cluster_count(n) for n in range(2)]
-                
-                if counts:
-                    if "0" not in mismatch_counts:
-                        mismatch_counts = {
-                            "0": counts[0],
-                            "1": counts[1],
-                        }
-                    else:
-                        mismatch_counts["0"] += counts[0]
-                        mismatch_counts["1"] += counts[1]
-        
+            # Get mismatch cluster counts: index 0 = perfect, 1 = 1 mismatch, etc.
+            counts = [
+                metric.mismatch_cluster_count(n)
+                for n in range(metric.mismatch_count())
+                # for n in range(2)
+                ]
+            
+            if counts:
+                if "0" not in mismatch_counts:
+                    mismatch_counts = {
+                        "0": counts[0],
+                        "1": counts[1],
+                    }
+                else:
+                    mismatch_counts["0"] += counts[0]
+                    mismatch_counts["1"] += counts[1]
+
         return mismatch_counts if mismatch_counts else None
     
     def _get_conversion_results(self) -> list:
@@ -171,55 +175,57 @@ class InteropRunStatsParser(RunStatsParserInterface):
         py_interop_summary.summarize_index_metrics(run_metrics, index_summary)
 
         num_lanes = self._run_summary.at(0).size()
-        num_reads = self._run_summary.size()
         lanes = []
-        index_mercic_set = run_metrics.index_metric_set()
+        index_metric_set = run_metrics.index_metric_set()
 
-        # Iterate through each lane
         for lane_index in range(num_lanes):
             total_yield = 0
             sample_demux_results = []
+            num_reads = self._run_summary.at(0).at(lane_index).size()
             # Retrieve total reads and PF reads for the lane. index 0 is used 
             # because total reads and PF reads are the same for all reads in the lane.
             total_reads = self._run_summary.at(0).at(lane_index).reads()
             total_reads_pf = self._run_summary.at(0).at(lane_index).reads_pf()
-            for read_nbr in range(num_reads):
-                lane_reads = self._run_summary.at(read_nbr).at(lane_index)
-                lane_demux = index_summary.at(lane_index)
-                
-                # Calculate yield in bases (from Gb)
-                lane_yield = \
-                    self._run_summary.at(read_nbr).at(lane_index).yield_g() * 1e9  # Convert from Gb to bases
-                total_yield += lane_yield
-                
-                # Get sample-level demux summary
-                try:
-                    sample = lane_demux.at(read_nbr)
-                    # Retrieve mismatch counts for the lane and tile
-                    mismatch_counts = self.get_mismatch_counts(
-                        lane_index+1, index_mercic_set.at(read_nbr).tile()
-                    )
+            lane_demux = index_summary.at(lane_index)
 
-                    # Construct index metrics
-                    index_metrics = [{
-                        "IndexSequence": f"{sample.index1()}+{sample.index2()}",
-                        "MismatchCounts": mismatch_counts or {},
-                    }]
-                    read_metrics = []
-                    sample_demux_results.append({
+            for sample_no in range(lane_demux.size()):
+                sample = lane_demux.at(sample_no)
+                sample_index1 = f"{sample.index1()}"
+                sample_index = sample_index1+f"{sample.index2()}" if sample.index2() else sample_index1
+                samples_yield = 0
+
+                mismatch_counts = self.get_mismatch_counts(
+                    lane_index+1, index_metric_set.at(sample_no).tile()
+                )
+
+                # Construct index metrics
+                index_metrics = [{
+                    "IndexSequence": sample_index,
+                    "MismatchCounts": mismatch_counts or {},
+                }]
+                read_metrics = []
+                sample_demux_results.append({
                         "SampleName": "_".join(sample.sample_id().split("_")[1:]),
                         "SampleId": sample.sample_id(),
                         "IndexMetrics": index_metrics,
                         "ReadMetrics": read_metrics,
-                        "Yield": lane_yield,
+                        "Yield": samples_yield,
                         "NumberReads": sample.cluster_count(),
                     })
-                    # Collect read-level metrics for each sample read
-                    for sample_index in range(lane_reads.size()): 
-                        reads_per_sample = lane_reads.at(sample_index)
-                        
-                        read_metrics.append({
-                            "ReadNumber": sample_index + 1,
+                for read_nbr in range(num_reads):
+                    reads_per_sample = self._run_summary.at(0).at(lane_index).at(read_nbr)
+
+                    # Get sample-level demux summary
+                    try:
+                        sample = lane_demux.at(read_nbr)
+                        # Calculate yield in bases (from Gb)
+                        read_yield = reads_per_sample.yield_g() * 1e9  # Convert from Gb to bases
+                        samples_yield += read_yield
+                        sample_demux_results[sample_no]["Yield"] = samples_yield
+                        total_yield += read_yield
+
+                        sample_demux_results[sample_no]["ReadMetrics"].append({
+                            "ReadNumber": read_nbr + 1,
                             "Yield": reads_per_sample.yield_g() * 1e9,
                             "YieldQ30":  (
                                     reads_per_sample.yield_g() * 
@@ -228,9 +234,9 @@ class InteropRunStatsParser(RunStatsParserInterface):
                             "PercentQ30": reads_per_sample.percent_gt_q30(),
                             "PercentPF": reads_per_sample.cluster_count()
                         })                       
-                except iop.py_interop_metrics.index_out_of_bounds_exception:
-                    # If the sample read is not found, continue to the next read
-                    continue
+                    except iop.py_interop_metrics.index_out_of_bounds_exception:
+                        # If the sample read is not found, continue to the next read
+                        continue
             # Construct Lane object
             lanes.append(
                 Lane(
