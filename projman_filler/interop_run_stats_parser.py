@@ -179,21 +179,22 @@ class InteropRunStatsParser(RunStatsParserInterface):
         index_metric_set = run_metrics.index_metric_set()
 
         for lane_index in range(num_lanes):
-            total_yield = 0
             sample_demux_results = []
             num_reads = self._run_summary.at(0).at(lane_index).size()
             # Retrieve total reads and PF reads for the lane. index 0 is used 
             # because total reads and PF reads are the same for all reads in the lane.
             total_reads = self._run_summary.at(0).at(lane_index).reads()
             total_reads_pf = self._run_summary.at(0).at(lane_index).reads_pf()
-            lane_demux = index_summary.at(lane_index)
+            total_yield= total_reads_pf * self.get_cycles(1) * 2
+            sample_demux = index_summary.at(lane_index)
 
-            for sample_no in range(lane_demux.size()):
-                sample = lane_demux.at(sample_no)
+            for sample_no in range(sample_demux_size:=sample_demux.size()):
+                sample = sample_demux.at(sample_no)
                 sample_index1 = f"{sample.index1()}"
                 sample_index = sample_index1+f"{sample.index2()}" if sample.index2() else sample_index1
-                samples_yield = 0
-
+                sample_num_reads = sample.cluster_count() / len(self._non_index_reads)
+                samples_yield = sample_num_reads * self.get_cycles(1) * 2
+    
                 mismatch_counts = self.get_mismatch_counts(
                     lane_index+1, index_metric_set.at(sample_no).tile()
                 )
@@ -210,30 +211,28 @@ class InteropRunStatsParser(RunStatsParserInterface):
                         "IndexMetrics": index_metrics,
                         "ReadMetrics": read_metrics,
                         "Yield": samples_yield,
-                        "NumberReads": sample.cluster_count(),
+                        "NumberReads": sample_num_reads,
                     })
+
                 for read_nbr in range(num_reads):
                     reads_per_sample = self._run_summary.at(0).at(lane_index).at(read_nbr)
 
                     # Get sample-level demux summary
                     try:
-                        sample = lane_demux.at(read_nbr)
+                        sample = sample_demux.at(read_nbr)
                         # Calculate yield in bases (from Gb)
-                        read_yield = reads_per_sample.yield_g() * 1e9  # Convert from Gb to bases
-                        samples_yield += read_yield
-                        sample_demux_results[sample_no]["Yield"] = samples_yield
-                        total_yield += read_yield
-
+                        read_yield = samples_yield / 2  #reads_per_sample.cluster_count().mean() * self.get_cycles(1) * 2
                         sample_demux_results[sample_no]["ReadMetrics"].append({
                             "ReadNumber": read_nbr + 1,
-                            "Yield": reads_per_sample.yield_g() * 1e9,
+                            "Yield":read_yield,
                             "YieldQ30":  (
                                     reads_per_sample.yield_g() * 
                                     (reads_per_sample.percent_gt_q30() / 100.0)
                                 )* 1e9,
                             "PercentQ30": reads_per_sample.percent_gt_q30(),
-                            "PercentPF": reads_per_sample.cluster_count()
-                        })                       
+                            "PercentPF": reads_per_sample.percent_pf()
+                        })
+
                     except iop.py_interop_metrics.index_out_of_bounds_exception:
                         # If the sample read is not found, continue to the next read
                         continue
