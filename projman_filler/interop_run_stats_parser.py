@@ -221,18 +221,14 @@ class InteropRunStatsParser(RunStatsParserInterface):
                     try:
                         sample = sample_demux.at(read_nbr)
                         # Calculate yield in bases (from Gb)
-                        read_yield = samples_yield / 2  #reads_per_sample.cluster_count().mean() * self.get_cycles(1) * 2
+                        read_yield = sample_num_reads * self.get_cycles(1)
                         sample_demux_results[sample_no]["ReadMetrics"].append({
                             "ReadNumber": read_nbr + 1,
                             "Yield":read_yield,
-                            "YieldQ30":  (
-                                    reads_per_sample.yield_g() * 
-                                    (reads_per_sample.percent_gt_q30() / 100.0)
-                                )* 1e9,
                             "PercentQ30": reads_per_sample.percent_gt_q30(),
                             "PercentPF": reads_per_sample.percent_pf()
                         })
-
+                    # If the sample read is not found, continue to the next read
                     except iop.py_interop_metrics.index_out_of_bounds_exception:
                         # If the sample read is not found, continue to the next read
                         continue

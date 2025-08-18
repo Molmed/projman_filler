@@ -66,3 +66,7 @@ target/
 
 # Data files
 data/*
+
+*sample_results*
+*flowcell_results*
+checkQC*

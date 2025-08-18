@@ -75,7 +75,8 @@ def calculate_sample_statistics(flowcell_name, conversion_results, reads_and_cyc
                         sample_result_with_index_copy.pct_q30 = None
                     else:
                         sample_result_with_index_copy.pct_q30 = (
-                            float(read_metric["YieldQ30"]) / read_metric["Yield"])*100
+                            float(read_metric["PercentQ30"])
+                        )
 
                     if fraction_of_lane is None:
                         sample_result_with_index_copy.pf_clusters = 0
