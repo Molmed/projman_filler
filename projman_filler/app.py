@@ -70,12 +70,12 @@ class App(object):
                     "reports_location": "Reports"
                 }
             )
-            flowcell_lane_results, sample_results = \
-                interop.get_checkqc_interop_stats(qc_data, runfolder)
-            
             flowcell_name = interop.get_flowcell_name()
             # Check if flowcell exists and should be overriden
             self.delete_existing_flowcell_from_db(flowcell_name, force)
+
+            flowcell_lane_results, sample_results = \
+                interop.get_checkqc_interop_stats(qc_data)
             
             self.flowcell_lane_results_repo.add(flowcell_lane_results)
             self.sample_results_repo.add(sample_results)
