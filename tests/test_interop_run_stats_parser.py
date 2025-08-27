@@ -133,6 +133,7 @@ class TestRunStatsParsers(unittest.TestCase):
             assert v1_results.tag_seq == pytest.approx(v2_results.tag_seq)
             assert v1_results.lane_num == pytest.approx(v2_results.lane_num)
             assert v1_results.sample_name == pytest.approx(v2_results.sample_name)
+            assert v1_results.library_name == pytest.approx(v2_results.library_name)
 
 if __name__ == '__main__':
     unittest.main()

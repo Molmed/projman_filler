@@ -17,12 +17,8 @@ requirements = [
     'pymssql~=2.3.4',
     'pandas~=2.2.3',
     'numpy~=2.2.4',
-    # checkQC must be installed manually
-    # git clone https://github.com/Molmed/checkQC.git
-    # cd checkQC
-    # sed -i 's/python_requires=.*$/python_requires=">=3.10",/' setup.py
-    # sed -i 's/^interop~=.*$/interop==1.4.0/' requirements/prod
-    # pip install --no-deps -r requirements/dev .
+    # CheckQC pinned installation be changed once the correct checkQV version is published to pypi
+    'checkQC@git+https://github.com/nkongenelly/checkQC.git@DATAOPS_1178_update_checkqc_for_projman#egg=checkQC',
 
 ]
 
