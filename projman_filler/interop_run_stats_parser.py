@@ -154,7 +154,7 @@ class InteropRunStatsParser(RunStatsParserInterface):
                 if read_dict["is_index"]:
                     continue
                 cycles = run_summary.at(read_no-1).read().total_cycles()
-
+                mean_error_rate = read_dict["mean_error_rate"]
                 flowcell_lane_results.append(
                     FlowcellLaneResult(
                         flowcell_id=flowcell_id,
@@ -162,10 +162,11 @@ class InteropRunStatsParser(RunStatsParserInterface):
                         read_num=read_no,
                         raw_density=lane_dict["raw_density"],
                         pf_density=lane_dict["pf_density"],
-                        error_rate=self._clean(read_dict["mean_error_rate"]),
-                        pf_clusters=lane_dict["total_cluster_pf"],
+                        error_rate=None if mean_error_rate and isnan(mean_error_rate) else mean_error_rate,
+                        pf_clusters=lane_dict["pf_clusters"],
+                        raw_clusters=lane_dict["raw_clusters"],
                         cycles=cycles,
-                        pct_q30=read_dict["percent_q30"],
+                        pct_q30=read_dict["percent_q30"] / 100,
                     )
                 )
 
@@ -181,7 +182,7 @@ class InteropRunStatsParser(RunStatsParserInterface):
                         ]
                     library_name = sample_row['description'].to_string(index=False).split("LIBRARY_NAME:")[-1].strip()
                     index1 = sample_row['index'].to_string(index=False)
-                    index2 = sample_row['index'].to_string(index=False)
+                    index2 = sample_row['index2'].to_string(index=False)
                     sample_project = sample_row['sample_project'].to_string(index=False)
 
                     sample_results.append(
