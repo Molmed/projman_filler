@@ -133,75 +133,111 @@ class InteropRunStatsParser(RunStatsParserInterface):
     
     def get_checkqc_interop_stats(self, qc_data):
         """
-        Gets run stats from checkqc illumina parser and the rest from iterop
+        Gets run stats from checkqc illumina parser for demultiplexers except bcl2fastq
 
         Params:
-        :qc_data (acheckQC QCData object): results from checkQC illumina parser 
+        :qc_data (checkQC QCData object): results from checkQC illumina parser 
             for specified demultiplexer
 
         Returns:
         : tuple of flowcell_lane_result, sample_results to be added to respective DB
         """
-        flowcell_lane_results = []
-        sample_results = []
-        
+        flowcell_id = self.get_flowcell_name()
         run_summary, index_summary = _read_interop_summary(self._runfolder)
-        flowcell_id = self.get_flowcell_name()  #self._run_info.flowcell_id()
-        samplesheet_pd = pd.DataFrame(qc_data.samplesheet)
+        samplesheet_df = pd.DataFrame(qc_data.samplesheet)
 
-        for lane_no, lane_dict in qc_data.sequencing_metrics.items():
-            for read_no, read_dict in lane_dict["reads"].items():
-                if read_dict["is_index"]:
+        flowcell_lane_results = self._build_lane_results(
+            qc_data, run_summary, flowcell_id
+        )
+        sample_results = self._build_sample_results(
+            qc_data, samplesheet_df, run_summary, flowcell_id
+        )
+
+        return flowcell_lane_results, sample_results
+    
+    def _build_lane_results(self, qc_data, run_summary, flowcell_id):
+        """
+        Constructs lane-level statistics from checkQC sequencing metrics results 
+            from illumina parser.
+
+        :param qc_data (QCData): Parsed QC data containing sequencing metrics.
+        :param run_summary: checkQC InterOp run summary object providing cycle information.
+        :param flowcell_id (str): Identifier for the flowcell.
+
+        :return results (List[FlowcellLaneResult]): Lane-level statistics for non-index reads.
+        """
+        results = []
+        for lane_no, lane_data in qc_data.sequencing_metrics.items():
+            for read_no, read_data in lane_data["reads"].items():
+                if read_data["is_index"]:
                     continue
-                cycles = run_summary.at(read_no-1).read().total_cycles()
-                mean_error_rate = read_dict["mean_error_rate"]
-                flowcell_lane_results.append(
-                    FlowcellLaneResult(
+                cycles = run_summary.at(read_no - 1).read().total_cycles()
+                error_rate = None if read_data["mean_error_rate"] and \
+                        isnan(read_data["mean_error_rate"]) else \
+                        read_data["mean_error_rate"]
+
+                results.append(FlowcellLaneResult(
+                    flowcell_id=flowcell_id,
+                    lane_num=lane_no,
+                    read_num=read_no,
+                    raw_density=lane_data["raw_density"],
+                    pf_density=lane_data["pf_density"],
+                    error_rate=error_rate,
+                    pf_clusters=lane_data["pf_clusters"],
+                    raw_clusters=lane_data["raw_clusters"],
+                    cycles=cycles,
+                    pct_q30=read_data["percent_q30"] / 100,
+                ))
+        return results
+    
+    def _build_sample_results(self, qc_data, samplesheet_df, run_summary, flowcell_id):
+        """
+        Constructs sample-level statistics by combining sequencing metrics, 
+            sample sheet data results from the checkQC interop parser
+
+        :param qc_data (QCData): Parsed QC data containing sample-level metrics.
+        :param samplesheet_df (pd.DataFrame): DataFrame representation of the sample sheet.
+        :param run_summary: checkQC InterOp run summary object providing cycle information.
+        :param flowcell_id (str): Identifier for the flowcell.
+
+        :return results (List[SampleResult]): Sample-level statistics including 
+            quality scores, indexing accuracy, and library metadata.
+        """
+        results = []
+        for lane_no, lane_data in qc_data.sequencing_metrics.items():
+            for sample_data in lane_data["reads_per_sample"]:
+                sample_id = sample_data["sample_id"]
+                sample_row = samplesheet_df[
+                    (samplesheet_df['lane'] == lane_no) &
+                    (samplesheet_df['sample_id'] == sample_id)
+                ]
+
+                library_name = \
+                    sample_row['description'].to_string(index=False).split(
+                        "LIBRARY_NAME:"
+                    )[-1].strip()
+                index1 = sample_row['index'].to_string(index=False)
+                index2 = sample_row['index2'].to_string(index=False)
+                sample_project = sample_row['sample_project'].to_string(index=False)
+
+                for read_no, read_data in lane_data["reads"].items():
+                    if read_data["is_index"]:
+                        continue
+                    cycles = run_summary.at(read_no - 1).read().total_cycles()
+
+                    results.append(SampleResult(
                         flowcell_id=flowcell_id,
+                        project_id=sample_project,
+                        sample_name="_".join(sample_id.split("_")[1:]),
+                        tag_seq=f"{index1}-{index2}" if index2 else index1,
                         lane_num=lane_no,
                         read_num=read_no,
-                        raw_density=lane_dict["raw_density"],
-                        pf_density=lane_dict["pf_density"],
-                        error_rate=None if mean_error_rate and isnan(mean_error_rate) else mean_error_rate,
-                        pf_clusters=lane_dict["pf_clusters"],
-                        raw_clusters=lane_dict["raw_clusters"],
                         cycles=cycles,
-                        pct_q30=read_dict["percent_q30"] / 100,
-                    )
-                )
-
-            for sample_dict in lane_dict["reads_per_sample"]:
-                for read_no, read_dict in lane_dict["reads"].items():
-                    if read_dict["is_index"]:
-                        continue
-                    sample_id = sample_dict["sample_id"]
-                    sample_row = \
-                        samplesheet_pd[
-                            (samplesheet_pd['lane'] == lane_no) &
-                            (samplesheet_pd['sample_id'] == sample_id) 
-                        ]
-                    library_name = sample_row['description'].to_string(index=False).split("LIBRARY_NAME:")[-1].strip()
-                    index1 = sample_row['index'].to_string(index=False)
-                    index2 = sample_row['index2'].to_string(index=False)
-                    sample_project = sample_row['sample_project'].to_string(index=False)
-
-                    sample_results.append(
-                        SampleResult(
-                            flowcell_id=flowcell_id,
-                            project_id=sample_project,
-                            sample_name="_".join(sample_id.split("_")[1:]),
-                            tag_seq=f"{index1}-{index2}" \
-                                if index2 else index1,
-                            lane_num=lane_no,
-                            read_num=read_no,
-                            cycles=cycles,
-                            pct_lane=sample_dict["percent_of_lane"],
-                            pf_clusters=float(sample_dict["cluster_count"]),
-                            pct_q30=sample_dict["percent_q30"] * 100,
-                            pct_tag_err=100-sample_dict["percent_perfect_index_reads"],
-                            library_name=library_name,
-                            mean_q=sample_dict["mean_q30"],
-                        )
-                    )
-    
-        return flowcell_lane_results, sample_results
+                        pct_lane=sample_data["percent_of_lane"],
+                        pf_clusters=float(sample_data["cluster_count"]),
+                        pct_q30=sample_data["percent_q30"] * 100,
+                        pct_tag_err=100 - sample_data["percent_perfect_index_reads"],
+                        library_name=library_name,
+                        mean_q=sample_data["mean_q30"],
+                    ))
+        return results
