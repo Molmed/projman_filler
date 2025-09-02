@@ -16,6 +16,7 @@ from projman_filler.repositories.sample_results_repo import SampleResultRepo
 from projman_filler.repositories.flowcell_lane_results_repo import FlowcellLaneResultsRepo
 from projman_filler.repositories.flowcell_runfolder_repo import FlowcellRunfolderRepo
 from checkQC.qc_data import QCData
+from checkQC.config import ConfigFactory
 
 class App(object):
 
@@ -60,8 +61,8 @@ class App(object):
         self.flowcell_runfolder_repo.add(flowcell_runfolder)
 
     def insert_runfolder_into_db(self, runfolder, bcl2fastq_stats_dir, \
-                                 demultiplexer, force=False, atac_seq_mode=False, \
-                                    olink_mode=False):
+                                 demultiplexer, config, force=False, \
+                                 atac_seq_mode=False, olink_mode=False):
         """
         Inserts runfolder data into the specific database based on the specified 
             demultiplexer and mode.
@@ -69,6 +70,7 @@ class App(object):
         :param runfolder (str): Path to the runfolder directory.
         :param bcl2fastq_stats_dir (str): Subdirectory containing bcl2fastq statistics.
         :param demultiplexer (str): Demultiplexer used (e.g 'bcl2fastq'/ 'bclconvert'...).
+        :param config (Path): Path to the checkQC configuration file
         :param force (bool, optional): If True, existing flowcell data will be overwritten.
         :param atac_seq_mode (bool, optional): If True, enables ATAC-seq specific processing.
         :param olink_mode (bool, optional): If True, enables Olink-specific processing.
@@ -85,42 +87,10 @@ class App(object):
             return self.insert_olink_runfolder_into_db(runfolder, force)
         else:
            flowcell_name = self._handle_other_demultiplexer(
-               runfolder, demultiplexer, force
+               runfolder, demultiplexer, config, force
             )
 
         self.insert_flowcell_runfolder_into_db(runfolder, flowcell_name)
-
-    
-    def _handle_other_demultiplexer(self, runfolder, demultiplexer, force):
-        """
-        Handles runfolder processing for demultiplexers other than bcl2fastq.
-
-        :param runfolder (str): Path to the runfolder directory.
-        :param demultiplexer (str): Demultiplexer used (e.g., 'bclconvert').
-        :param force (bool): If True, existing flowcell data will be overwritten.
-
-        :return flowcell_name (str): The flowcell name extracted from the runfolder 
-            (after saving flowcel_lane and sample data in DB).
-        """
-
-        interop = InteropRunStatsParser(runfolder)
-        demultiplexers_location = {
-               "bclconvert": "Reports"
-           }
-        qc_data = getattr(QCData, f"from_{demultiplexer}")(
-            runfolder_path=runfolder,
-            parser_config={
-                "reports_location": demultiplexers_location[demultiplexer]
-            }
-        )
-        flowcell_name = interop.get_flowcell_name()
-        self.delete_existing_flowcell_from_db(flowcell_name, force)
-
-        lane_results, sample_results = interop.get_checkqc_interop_stats(qc_data)
-        self.flowcell_lane_results_repo.add(lane_results)
-        self.sample_results_repo.add(sample_results)
-
-        return flowcell_name
 
     def _handle_bcl2fastq(self, runfolder, stats_dir, force, atac_seq_mode):
         """
@@ -184,3 +154,35 @@ class App(object):
 
         self.flowcell_lane_results_repo.add(list(lane_stats))
         self.insert_flowcell_runfolder_into_db(runfolder, flowcell_name)
+
+    def _handle_other_demultiplexer(self, runfolder, demultiplexer, config, force):
+        """
+        Handles runfolder processing for demultiplexers other than bcl2fastq.
+
+        :param runfolder (str): Path to the runfolder directory.
+        :param demultiplexer (str): Demultiplexer used (e.g., 'bclconvert').
+        :param config (Path): Path to the checkQC configuration file
+        :param force (bool): If True, existing flowcell data will be overwritten.
+
+        :return flowcell_name (str): The flowcell name extracted from the runfolder 
+            (after saving flowcel_lane and sample data in DB).
+        """
+
+        interop = InteropRunStatsParser(runfolder)
+        config = ConfigFactory.from_config_path(config)._config
+        qc_data = getattr(QCData, f"from_{demultiplexer}")(
+            runfolder_path=runfolder,
+            parser_config=(
+                config
+            .get("parser_configurations", {})
+            .get(f"from_{demultiplexer}", {})
+            )
+        )
+        flowcell_name = interop.get_flowcell_name()
+        self.delete_existing_flowcell_from_db(flowcell_name, force)
+
+        lane_results, sample_results = interop.get_checkqc_interop_stats(qc_data)
+        self.flowcell_lane_results_repo.add(lane_results)
+        self.sample_results_repo.add(sample_results)
+
+        return flowcell_name
