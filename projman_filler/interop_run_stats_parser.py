@@ -183,7 +183,7 @@ class InteropRunStatsParser(RunStatsParserInterface):
                     raw_density=lane_data["raw_density"],
                     pf_density=lane_data["pf_density"],
                     error_rate=error_rate,
-                    pf_clusters=lane_data["pf_clusters"],
+                    pf_clusters=lane_data["total_cluster_pf"],
                     raw_clusters=lane_data["raw_clusters"],
                     cycles=cycles,
                     pct_q30=read_data["percent_q30"] / 100,
