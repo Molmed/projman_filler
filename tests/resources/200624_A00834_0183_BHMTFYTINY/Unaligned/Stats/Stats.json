@@ -47,9 +47,9 @@
  "ConversionResults" : [
   {
    "LaneNumber" : 1,
-   "TotalClustersRaw" : 4091904,
-   "TotalClustersPF" : 3405706,
-   "Yield" : 122605416,
+   "TotalClustersRaw" : 638337024,
+   "TotalClustersPF" : 532464327,
+   "Yield" : 124497108,
    "DemuxResults" : [
     {
      "SampleId" : "Sample_14574-Qiagen-IndexSet1-SP-Lane1",
@@ -92,8 +92,8 @@
   },
   {
    "LaneNumber" : 2,
-   "TotalClustersRaw" : 4091904,
-   "TotalClustersPF" : 3458253,
+   "TotalClustersRaw" : 638337024,
+   "TotalClustersPF" : 532464327,
    "Yield" : 124497108,
    "DemuxResults" : [
     {

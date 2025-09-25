@@ -1279,18 +1279,17 @@ conversion_results_empty_lane = [
 
 qc_data = {
     "samplesheet": [
-        {'lane': 1, 'sample_id': 'Sample_14574-Qiagen-IndexSet1-SP-Lane1', 'index': 'GAACTGAGCG', 'index2': 'TCGTGGAGCG', 'sample_project': 'AB-1234', 'description': 'LIBRARY_NAME:test'},
-        {'lane': 1, 'sample_id': 'Sample_14575-Qiagen-IndexSet1-SP-Lane1', 'index': 'AGGTCAGATA', 'index2': 'CTACAAGATA', 'sample_project': 'CD-5678', 'description': 'LIBRARY_NAME:test'},
-        {'lane': 2, 'sample_id': 'Sample_14574-Qiagen-IndexSet1-SP-Lane2', 'index': 'GAACTGAGCG', 'index2': 'TCGTGGAGCG', 'sample_project': 'AB-1234', 'description': 'LIBRARY_NAME:test'}, 
-        {'lane': 2, 'sample_id': 'Sample_14575-Qiagen-IndexSet1-SP-Lane2', 'index': 'AGGTCAGATA', 'index2': 'CTACAAGATA', 'sample_project': 'CD-5678', 'description': 'LIBRARY_NAME:test'}
+        {'lane': 1, 'sample_id': 'Sample_14574-Qiagen-IndexSet1-SP-Lane1', 'index': 'GAACTGAGCG', 'index2': 'TCGTGGAGCG', 'sample_project': 'AB-1234', 'custom_description': 'LIBRARY_NAME:test'},
+        {'lane': 1, 'sample_id': 'Sample_14575-Qiagen-IndexSet1-SP-Lane1', 'index': 'AGGTCAGATA', 'index2': 'CTACAAGATA', 'sample_project': 'CD-5678', 'custom_description': 'LIBRARY_NAME:test'},
+        {'lane': 2, 'sample_id': 'Sample_14574-Qiagen-IndexSet1-SP-Lane2', 'index': 'GAACTGAGCG', 'index2': 'TCGTGGAGCG', 'sample_project': 'AB-1234', 'custom_description': 'LIBRARY_NAME:test'}, 
+        {'lane': 2, 'sample_id': 'Sample_14575-Qiagen-IndexSet1-SP-Lane2', 'index': 'AGGTCAGATA', 'index2': 'CTACAAGATA', 'sample_project': 'CD-5678', 'custom_description': 'LIBRARY_NAME:test'}
     ],
     "sequencing_metrics": {
         1: {
-            'total_cluster_pf': 532464327,
-            'total_cluster': 638337024,
+            'total_reads_pf': 532464327,
+            'total_reads': 638337024,
             'raw_density': 2961270.5,
             'pf_clusters': 3413232.5,
-            'raw_clusters': 4091904.0,
             'pf_density': 2470118.25,
             'yield': 122605416,
             'yield_undetermined': 121940136,
@@ -1314,22 +1313,21 @@ qc_data = {
                     'sample_id': 'Sample_14574-Qiagen-IndexSet1-SP-Lane1', 
                     'cluster_count': 9920, 'percent_of_lane': 0.29, 
                     'percent_perfect_index_reads': 97.96, 'mean_q30': 36.37, 
-                    'percent_q30': 0.96
+                    'percent_q30': 96.0
                 },
                 {
                     'sample_id': 'Sample_14575-Qiagen-IndexSet1-SP-Lane1', 
                     'cluster_count': 8560, 'percent_of_lane': 0.25, 
                     'percent_perfect_index_reads': 98.15, 'mean_q30': 36.43, 
-                    'percent_q30': 0.96
+                    'percent_q30': 96.0
                 }
             ]
         },
         2: {
-            'total_cluster_pf': 530917565,
-            'total_cluster': 638337024,
+            'total_reads_pf': 530917565,
+            'total_reads': 638337024,
             'raw_density': 2961270.5,
             'pf_clusters': 3403318.25,
-            'raw_clusters': 4091904.0,
             'pf_density': 2462942.5,
             'yield': 124497108,
             'yield_undetermined': 123817428,
@@ -1353,13 +1351,13 @@ qc_data = {
                     'sample_id': 'Sample_14574-Qiagen-IndexSet1-SP-Lane2', 
                     'cluster_count': 10208, 'percent_of_lane': 0.3, 
                     'percent_perfect_index_reads': 98.2, 'mean_q30': 36.4, 
-                    'percent_q30': 0.96
+                    'percent_q30': 96.0
                 },
                 {
                     'sample_id': 'Sample_14575-Qiagen-IndexSet1-SP-Lane2', 
                     'cluster_count': 8672, 'percent_of_lane': 0.25, 
                     'percent_perfect_index_reads': 98.29, 'mean_q30': 36.48, 
-                    'percent_q30': 0.97
+                    'percent_q30': 97.0
                 }
             ]
         }
