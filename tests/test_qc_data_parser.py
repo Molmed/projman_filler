@@ -28,7 +28,7 @@ def get_mock_qc_data(runfolder):
     }
 
     qc_data = QCData.from_bclconvert(runfolder, parser_config,)
-    bclconvert_data =  bclconvert_test_runfolder(qc_data)
+    bclconvert_data =  bclconvert_test_runfolder(qc_data, runfolder)
     return Mock_qc_data(
         bclconvert_data["expected_samplesheet"]["head"],
         bclconvert_data["expected_sequencing_metrics"],
