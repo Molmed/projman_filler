@@ -13,8 +13,8 @@ from checkQC.qc_data_utils import bclconvert_test_runfolder
 from checkQC.qc_data import QCData
 
 
-runfolder_v1 = "tests/resources/200624_A00834_0183_BHMTFYTINY"
-runfolder_v2 = Path(__file__).parent / "resources/200624_A00834_0184_BHMTFYTINY"
+runfolder_v1 = str(Path(__file__).parent / "resources/bcl2fastq/200624_A00834_0183_BHMTFYTINY")
+runfolder_v2 = Path(__file__).parent / "resources/bclconvert/200624_A00834_0183_BHMTFYTINY"
 class Mock_qc_data():
     def __init__(self, samplesheet, sequencing_metrics, qc_data):
         self.samplesheet = samplesheet
