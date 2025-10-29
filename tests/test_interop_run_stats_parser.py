@@ -1,15 +1,13 @@
 import unittest
-from unittest.mock import MagicMock
+
 from projman_filler.interop_run_stats_parser import InteropRunStatsParser
-from interop import py_interop_run, py_interop_run_metrics, py_interop_summary
 import pandas as pd
 import interop
-from projman_filler.lane import Lane
 
 
 class TestRunStatsParsers(unittest.TestCase):
     def test_interop_standardize_read_numbers(self):
-        runfolder = "tests/resources/200624_A00834_0183_BHMTFYTINY"
+        runfolder = "tests/resources/bcl2fastq/200624_A00834_0183_BHMTFYTINY"
 
         non_index_reads = [0]
         iop = InteropRunStatsParser(runfolder, non_index_reads)
@@ -23,7 +21,7 @@ class TestRunStatsParsers(unittest.TestCase):
 
     def test_lanes_total_clusters(self):
         non_index_reads = [0]
-        runfolder = "tests/resources/200624_A00834_0183_BHMTFYTINY"
+        runfolder = "tests/resources/bcl2fastq/200624_A00834_0183_BHMTFYTINY"
         iop = InteropRunStatsParser(runfolder, non_index_reads)
         for lane in iop._conversion_results:
             assert lane._total_clusters_pf is not None and lane._total_clusters_pf != 0
@@ -34,7 +32,7 @@ class TestRunStatsParsers(unittest.TestCase):
         Verify that 'Reads' and 'Reads Pf' are consistently the same across all reads within the same lane
         """
         non_index_reads = [0]
-        runfolder = "tests/resources/200624_A00834_0183_BHMTFYTINY"
+        runfolder = "tests/resources/bcl2fastq/200624_A00834_0183_BHMTFYTINY"
         iop = InteropRunStatsParser(runfolder, non_index_reads)
         
         interop_lane_summary = interop.summary(iop._run_metrics, 'Lane')

@@ -128,5 +128,4 @@ class InteropRunStatsParser(RunStatsParserInterface):
             
             lanes.append(Lane(l, total_clusters_raw, total_clusters_pf))
         return lanes
-
-
+    
