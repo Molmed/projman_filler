@@ -18,7 +18,7 @@ requirements = [
     'pandas~=2.2.3',
     'numpy~=2.2.4',
     # CheckQC pinned installation be changed once the correct checkQV version is published to pypi
-    'checkQC@git+https://github.com/nkongenelly/checkQC.git@DATAOPS_1178_update_checkqc_for_projman#egg=checkQC',
+    'checkQC@git+https://github.com/Molmed/checkQC.git@master#egg=checkQC',
 
 ]
 
