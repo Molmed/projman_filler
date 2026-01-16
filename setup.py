@@ -17,8 +17,7 @@ requirements = [
     'pymssql~=2.3.4',
     'pandas~=2.2.3',
     'numpy~=2.2.4',
-    # CheckQC pinned installation be changed once the correct checkQV version is published to pypi
-    'checkQC@git+https://github.com/Molmed/checkQC.git@master#egg=checkQC',
+    'checkQC~=4.1.1rc1',
 
 ]
 
