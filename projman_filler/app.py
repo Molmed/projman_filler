@@ -65,7 +65,7 @@ class App(object):
                                  demultiplexer, ch_config_path, force=False,
                                  atac_seq_mode=False, olink_mode=False):
         """
-        Inserts runfolder data into the specific database based on the specified 
+        Inserts runfolder data into the specific database based on the specified
             demultiplexer and mode.
 
         :param runfolder (str): Path to the runfolder directory.
@@ -78,18 +78,22 @@ class App(object):
         """
         flowcell_name = None
 
-        if demultiplexer == "bcl2fastq":
-            flowcell_name = self._handle_bcl2fastq(
-                runfolder, bcl2fastq_stats_dir, force, atac_seq_mode
-            )
-        elif olink_mode:
+        if olink_mode:
             print("Olink mode activated. Will read lane-level statistics from "
                   "InterOp files instead of bcl2fastq Stats.json.")
             return self.insert_olink_runfolder_into_db(runfolder, force)
-        else:
-            flowcell_name = self._handle_other_demultiplexer(
-               runfolder, demultiplexer, ch_config_path, force
+
+        match demultiplexer:
+            case "bcl2fastq":
+                flowcell_name = self._handle_bcl2fastq(
+                runfolder, bcl2fastq_stats_dir, force, atac_seq_mode
             )
+            case "bclconvert":
+                flowcell_name = self._handle_other_demultiplexer(
+               runfolder, demultiplexer, ch_config_path, force
+                )
+            case _:
+                raise ValueError(f"{demultiplexer} is not a supported demultiplexer")
 
         self.insert_flowcell_runfolder_into_db(runfolder, flowcell_name)
 
@@ -102,7 +106,7 @@ class App(object):
         :param force (bool): If True, existing flowcell data will be overwritten.
         :param atac_seq_mode (bool): If True, enables ATAC-seq specific processing.
 
-        :return flowcell_name (str): The flowcell name extracted from the bcl2fastq 
+        :return flowcell_name (str): The flowcell name extracted from the bcl2fastq
             statistics (after saving flowcel_lane and sample data in DB).
         """
         stats_path = os.path.join(runfolder, stats_dir)
@@ -119,7 +123,7 @@ class App(object):
             print("ATAC-seq mode activated. Will re-map read numbers according "
                   "to settings used by bcl2fastq.")
             non_index_reads = bcl2fastq_stats.get_non_index_reads()
-        
+
         interop = InteropRunStatsParser(runfolder, non_index_reads)
         lane_stats = calculate_lane_statistics(
             interop, flowcell_name, conversion_results
@@ -139,7 +143,7 @@ class App(object):
         Inserts runfolder data into the database using Olink-specific processing.
 
         :param runfolder (str): Path to the runfolder directory.
-        :param force (bool, optional): If True, existing flowcell data will be 
+        :param force (bool, optional): If True, existing flowcell data will be
             overwritten. Defaults to False.
         """
         interop = InteropRunStatsParser(runfolder)
@@ -166,7 +170,7 @@ class App(object):
         :param ch_config_path (Path): Path to the checkQC configuration file
         :param force (bool): If True, existing flowcell data will be overwritten.
 
-        :return flowcell_name (str): The flowcell name extracted from the runfolder 
+        :return flowcell_name (str): The flowcell name extracted from the runfolder
             (after saving flowcel_lane and sample data in DB).
         """
 
