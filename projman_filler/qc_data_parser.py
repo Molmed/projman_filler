@@ -102,7 +102,7 @@ class QCDataParser:
                         read_num=read_no,
                         cycles=cycles,
                         pct_lane=sample_data["percent_of_lane"],
-                        pf_clusters=float(sample_data["cluster_count"]/no_of_reads),
+                        pf_clusters=float(sample_data["reads_pf"]),
                         pct_q30=sample_data["percent_q30"],
                         pct_tag_err=100 - sample_data["percent_perfect_index_reads"],
                         library_name=library_name,

@@ -59,7 +59,7 @@ requirements = [
     'pymssql~=2.3.4',
     'pandas~=2.2.3',
     'numpy~=2.2.4',
-    f'checkQC~={latest_checkqc_version}',
+    'checkQC@git+https://github.com/nkongenelly/checkQC.git@DATAOPS-1796_fix_bclconvert_sequencing_metrics#egg=checkQC',
 
 ]
 
