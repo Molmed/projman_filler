@@ -4,53 +4,11 @@
 """The setup script."""
 
 from setuptools import setup, find_packages
-from projman_filler import __version__ as projman_filler_version
-import subprocess
-import re
-import logging
 
-# 1. Configure the logger
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+from projman_filler import __version__ as projman_filler_version
 
 with open('README.md') as readme_file:
     readme = readme_file.read()
-
-
-def get_latest_version(package_name):
-    try:
-        # Run the pip index versions command
-        result = subprocess.run(
-            ["python", "-m", "pip", "index", "versions", "--pre", package_name],
-            capture_output=True, text=True, check=True
-        )
-        
-        # The first line usually contains "package_name (X.Y.Z)"
-        # Or parse the "Available versions:" line
-        output = result.stdout
-        
-        # Regex to find the first version block, e.g., "package_name (1.2.3)"
-        match = re.search(rf"{package_name}\s*\(([^)]+)\)", output)
-        if match:
-            return match.group(1)
-            
-        # Fallback: parse the list of available versions
-        versions_match = re.search(r"Available versions:\s*([^\n]+)", output)
-        if versions_match:
-            # Grab the first version in the comma-separated list
-            versions = [v.strip() for v in versions_match.group(1).split(",")]
-            return versions[0]
-            
-    except (subprocess.CalledProcessError, FileNotFoundError, IndexError) as e:
-        # Fallback version if the pip command fails or is unavailable
-        logger.exception(f"Failed to fetch latest version for package '{package_name}' via pip.")
-        return '4.1.1rc1' 
-    
-latest_checkqc_version = get_latest_version("checkQC")
-logger.info(f"Using latest checkQC version = {latest_checkqc_version}")
 
 requirements = [
     'Click~=8.1.8',
