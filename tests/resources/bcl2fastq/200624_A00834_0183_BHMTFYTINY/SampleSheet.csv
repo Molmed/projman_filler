@@ -11,5 +11,7 @@ AdapterRead1,CTGTCTCTTATACACATCT,,,,
 ,,,,,
 [Data],,,,,
 Lane,Sample_ID,Sample_Name,Sample_Project,Index_ID,index,index2,Description
-1,Sample_14574-Qiagen-IndexSet1-SP-Lane1,14574-Qiagen-IndexSet1-SP-Lane1,AB-1234,UDP0001,GAACTGAGCG,TCGTGGAGCG,LIBRARY_NAME:test
+1,Sample_14574-qiagen-indexset1-sp-lane1,14574-qiagen-indexset1-sp-lane1,AB-1234,UDP0001,GAACTGAGCG,TCGTGGAGCG,LIBRARY_NAME:test
+1,Sample_CD-5678-Zymo-IndexSet1-SP-Lane1,CD-5678-Zymo-IndexSet1-SP-Lane1,CD-5678,,GTCCGTAAGC,CGTGTATCTT,LIBRARY_NAME:test
 2,Sample_14574-Qiagen-IndexSet1-SP-Lane2,14574-Qiagen-IndexSet1-SP-Lane2,AB-1234,UDP0001,GAACTGAGCG,TCGTGGAGCG,LIBRARY_NAME:test
+2,Sample_CD-5678-Zymo-IndexSet1-SP-Lane2,CD-5678-Zymo-IndexSet1-SP-Lane2,CD-5678,,GTCCGTAAGC,CGTGTATCTT,LIBRARY_NAME:test

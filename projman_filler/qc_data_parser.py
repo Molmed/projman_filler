@@ -83,26 +83,19 @@ class QCDataParser:
                         continue
                     read_no += 1 # counts only non-index reads
                     cycles = self.run_summary.at(number - 1).read().total_cycles()
-                    no_of_reads = len(
-                        [
-                            no 
-                            for no, read_data in lane_data["reads"].items()
-                            if not read_data["is_index"]
-                        ]
-                    )
+
                     results.append(SampleResult(
                         flowcell_id=self.flowcell_id,
                         project_id=sample_project,
-                        sample_name="_".join(sample_id.split("_")[1:]),
+                        sample_name=sample_id,
                         tag_seq=f"{index1}-{index2}" if index2 else index1,
                         lane_num=lane_no,
                         read_num=read_no,
                         cycles=cycles,
                         pct_lane=sample_data["percent_of_lane"],
-                        pf_clusters=float(sample_data["cluster_count"]/no_of_reads),
+                        pf_clusters=float(sample_data["reads_pf"]),
                         pct_q30=sample_data["percent_q30"],
                         pct_tag_err=100 - sample_data["percent_perfect_index_reads"],
                         library_name=library_name,
-                        mean_q=sample_data["mean_q30"],
                     ))
         return results

@@ -24,7 +24,7 @@ class Mock_qc_data():
 
 def get_mock_qc_data(runfolder):
     parser_config = {
-        "reports_location": "Reports"
+        "reports_location": "Unaligned/Stats"
     }
 
     qc_data = QCData.from_bclconvert(runfolder, parser_config,)
@@ -74,19 +74,17 @@ class TestQCDataParsers(unittest.TestCase):
         for v1_results, v2_results in zip(v1_lane_stats, v2_lane_stats):
             assert v1_results.pct_q30 == pytest.approx(v2_results.pct_q30)
             assert v1_results.error_rate == pytest.approx(v2_results.error_rate)
-            # rel(=(expected-obtained) / expected) gives percent relative difference to allow for small variations
-            assert v1_results.pf_clusters == pytest.approx(v2_results.pf_clusters, rel=0.017)
+            assert v1_results.pf_clusters == pytest.approx(v2_results.pf_clusters)
             assert v1_results.pf_density == pytest.approx(v2_results.pf_density)
-            assert v1_results.raw_clusters == pytest.approx(v2_results.raw_clusters, rel=0.15)
+            assert v1_results.raw_clusters == pytest.approx(v2_results.raw_clusters)
             assert v1_results.raw_density == pytest.approx(v2_results.raw_density)
 
-        for v1_results, v2_results in zip(v1_sample_stats, [v2_sample_stats[0], v2_sample_stats[2]]):
+        for v1_results, v2_results in zip(v1_sample_stats, v2_sample_stats):
+            # rel is a fractional tolerance (abs(obtained - expected)), allowing small variations.
             assert round(v1_results.pct_q30, 2) == pytest.approx(v2_results.pct_q30, rel=0.005)  # assert 96.4 == 96.0 ± 9.6e-05
-            assert round(v1_results.mean_q, 2) == pytest.approx(v2_results.mean_q, rel=0.005)  #assert 36.43 == 36.37 ± 3.6e-05
-            assert round(v1_results.pct_lane, 2) == pytest.approx(v2_results.pct_lane, rel=0.035) # assert 0.3 == 0.29  ± 2.9e-07
-            assert round(v1_results.pct_tag_err, 2) == pytest.approx(round(v2_results.pct_tag_err, 2), rel=0.015)  # assert 2.07 == 2.04 ± 2.0e-06
-            # TODO: Fix Stats.json sample yield value as it seems to be wrong
-            # assert v1_results.pf_clusters == pytest.approx(v2_results.pf_clusters)  # assert 1576102.0 == 9920.0 ± 9.9e-03
+            assert round(v1_results.pct_lane, 2) == pytest.approx(v2_results.pct_lane)
+            assert round(v1_results.pct_tag_err, 2) == pytest.approx(round(v2_results.pct_tag_err, 2))
+            assert v1_results.pf_clusters == pytest.approx(v2_results.pf_clusters)
             assert v1_results.project_id == pytest.approx(v2_results.project_id)
             assert v1_results.tag_seq == pytest.approx(v2_results.tag_seq)
             assert v1_results.lane_num == pytest.approx(v2_results.lane_num)
@@ -95,4 +93,3 @@ class TestQCDataParsers(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
