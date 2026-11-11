@@ -96,7 +96,7 @@ class QCDataParser:
                     results.append(SampleResult(
                         flowcell_id=self.flowcell_id,
                         project_id=sample_project,
-                        sample_name="_".join(sample_id.split("_")[1:]),
+                        sample_name=sample_id,
                         tag_seq=f"{index1}-{index2}" if index2 else index1,
                         lane_num=lane_no,
                         read_num=read_no,
