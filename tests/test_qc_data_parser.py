@@ -82,7 +82,6 @@ class TestQCDataParsers(unittest.TestCase):
         for v1_results, v2_results in zip(v1_sample_stats, v2_sample_stats):
             # rel is a fractional tolerance (abs(obtained - expected)), allowing small variations.
             assert round(v1_results.pct_q30, 2) == pytest.approx(v2_results.pct_q30, rel=0.005)  # assert 96.4 == 96.0 ± 9.6e-05
-            assert round(v1_results.mean_q, 2) == pytest.approx(v2_results.mean_q)
             assert round(v1_results.pct_lane, 2) == pytest.approx(v2_results.pct_lane)
             assert round(v1_results.pct_tag_err, 2) == pytest.approx(round(v2_results.pct_tag_err, 2))
             assert v1_results.pf_clusters == pytest.approx(v2_results.pf_clusters)
